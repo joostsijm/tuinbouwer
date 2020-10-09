@@ -5,6 +5,7 @@ import tempfile
 
 import pytest
 from dotenv import load_dotenv
+import flask_migrate
 
 from tuinbouw_server_api import create_app
 
@@ -15,11 +16,11 @@ def flask():
     db_fd, db_path = tempfile.mkstemp()
     app = create_app({
         'TESTING': True,
-        'DATABASE': db_path,
+        'SQLALCHEMY_DATABASE_URI': 'sqlite:////' + db_path + '.sqlite',
     })
     with app.app_context():
-        app.db.init_db()
-    yield app
+        flask_migrate.upgrade()
+        yield app
 
     os.close(db_fd)
     os.unlink(db_path)

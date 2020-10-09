@@ -15,6 +15,8 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY=os.environ.get('FLASK_SECRET_KEY', 'dev'),
+        SQLALCHEMY_DATABASE_URI='sqlite:////tmp/test.db',
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
 
     if test_config is None:
@@ -26,6 +28,10 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    # register the database models
+    from tuinbouw_server_api.models import db
+    db.init_app(app)
 
     app.register_blueprint(sensor_api.sensor_api)
 

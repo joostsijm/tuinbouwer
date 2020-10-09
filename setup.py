@@ -16,9 +16,11 @@ setuptools.setup(
     url="https://git.craftbroec.nl/tuinbouwer/tuinbouwer_server_api",
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
+    include_package_data=True,
     install_requires=[
         "flask",
         "python-dotenv",
+        "flask_sqlalchemy",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

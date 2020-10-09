@@ -10,8 +10,11 @@ tox-venv = "*"
 
 [packages]
 flask = "*"
+psycopg2-binary = "*"
 python-dotenv = "*"
 flask-sqlalchemy = "*"
+flask-migrate = "*"
+APScheduler = "*"
 
 [requires]
 python_version = "3.8"

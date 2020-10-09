@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from . import sensor_api
 
 
+
 load_dotenv()
 
 def create_app(test_config=None):
@@ -15,7 +16,7 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY=os.environ.get('FLASK_SECRET_KEY', 'dev'),
-        SQLALCHEMY_DATABASE_URI='sqlite:////tmp/test.db',
+        SQLALCHEMY_DATABASE_URI='sqlite:////' + os.path.join(app.instance_path, 'app.sqlite'),
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
 
@@ -30,8 +31,9 @@ def create_app(test_config=None):
         pass
 
     # register the database models
-    from tuinbouw_server_api.models import db
+    from tuinbouw_server_api.models import db, migrate
     db.init_app(app)
+    migrate.init_app(app, db)
 
     app.register_blueprint(sensor_api.sensor_api)
 

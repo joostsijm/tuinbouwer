@@ -1,0 +1,25 @@
+appdirs==1.4.4
+attrs==20.2.0
+click==7.1.2
+distlib==0.3.1
+filelock==3.0.12
+Flask==1.1.2
+Flask-SQLAlchemy==2.4.4
+iniconfig==1.0.1
+itsdangerous==1.1.0
+Jinja2==2.11.2
+MarkupSafe==1.1.1
+packaging==20.4
+pluggy==0.13.1
+py==1.9.0
+pyparsing==2.4.7
+pytest==6.1.1
+python-dotenv==0.14.0
+six==1.15.0
+SQLAlchemy==1.3.19
+toml==0.10.1
+tox==3.20.1
+tox-venv==0.4.0
+-e git+gogs@git.craftbroec.nl:tuinbouwer/tuinbouwer_server_api.git@1256addfd3d98899903bf8057b1a9e2d679b4af7#egg=tuinbouw_server_api
+virtualenv==20.0.33
+Werkzeug==1.0.1

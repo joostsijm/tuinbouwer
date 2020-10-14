@@ -53,8 +53,8 @@ class SensorLog(db.Model):
     """Model for sensor log"""
     id = db.Column(db.Integer, primary_key=True)
     # Temperature in celcius
-    temperature = db.Column(db.DECIMAL(3, 1))
+    temperature = db.Column(db.DECIMAL(3, 1), nullable=False)
     # Air humidity
-    humidity = db.Column(db.SmallInteger)
+    humidity = db.Column(db.DECIMAL(3, 1), nullable=False)
     # Power in watts
-    power = db.Column(db.DECIMAL(6, 2))
+    power = db.Column(db.DECIMAL(6, 2), nullable=False)

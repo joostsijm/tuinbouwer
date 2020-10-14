@@ -5,8 +5,7 @@ import os
 from flask import Flask
 from dotenv import load_dotenv
 
-from . import sensor_api
-
+from tuinbouw_server_api  import sensor_api
 
 
 load_dotenv()

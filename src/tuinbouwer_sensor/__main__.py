@@ -6,8 +6,9 @@ import time
 from tuinbouwer_sensor import SCHEDULER, LOGGER, jobs
 
 
-if __name__ == '__main__':
-    jobs.send_log_information()
+def main():
+    """Main method"""
+    # jobs.send_log_information()
 
     LOGGER.info('Starting application')
     SCHEDULER.add_job(
@@ -26,3 +27,6 @@ if __name__ == '__main__':
         LOGGER.info('Exiting application')
         SCHEDULER.shutdown()
         sys.exit()
+
+if __name__ == '__main__':
+    main()

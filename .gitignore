@@ -1,5 +1,11 @@
 .venv/
+log/
+.tox/
+__pycache__/
+build/
+dist/
 .env
-__pycache__
-*.html
+instance/
+*.egg-info/
+*.pyc
 *.log

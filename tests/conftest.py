@@ -7,7 +7,7 @@ import pytest
 from dotenv import load_dotenv
 import flask_migrate
 
-from tuinbouw_server_api import create_app
+from tuinbouwer_server_api import create_app
 
 load_dotenv()
 

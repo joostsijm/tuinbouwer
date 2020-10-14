@@ -4,7 +4,8 @@ from decimal import Decimal
 
 import pytest
 
-from tuinbouw_server_api import models
+from tuinbouwerserver_api import models
+
 
 def test_space_add(flask):
     """Test adding space to database"""
@@ -40,5 +41,5 @@ def test_sensor_log_add(flask):
     models.db.session.commit()
     assert isinstance(sensor_log.id, int), "Sensor log id should be an int"
     assert isinstance(sensor_log.temperature, Decimal), "Sensor log temperature should be an int"
-    assert isinstance(sensor_log.humidity, int), "Sensor log humidity should be an int"
+    assert isinstance(sensor_log.humidity, Decimal), "Sensor log humidity should be an int"
     assert isinstance(sensor_log.power, Decimal), "Sensor log power should be an int"

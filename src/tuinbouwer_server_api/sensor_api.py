@@ -5,7 +5,7 @@ from smtplib import SMTPServerDisconnected
 
 from flask import Blueprint, redirect, url_for, abort
 
-from tuinbouw_server_api import models
+from tuinbouwer_server_api import models
 
 
 sensor_api = Blueprint('sensor_api', __name__, url_prefix='/sensor_api/v1')

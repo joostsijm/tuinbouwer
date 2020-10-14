@@ -5,7 +5,7 @@ import os
 from flask import Flask
 from dotenv import load_dotenv
 
-from tuinbouw_server_api  import sensor_api
+from tuinbouwer_server_api  import sensor_api
 
 
 load_dotenv()
@@ -30,7 +30,7 @@ def create_app(test_config=None):
         pass
 
     # register the database models
-    from tuinbouw_server_api.models import db, migrate
+    from tuinbouwer_server_api.models import db, migrate
     db.init_app(app)
     migrate.init_app(app, db)
 

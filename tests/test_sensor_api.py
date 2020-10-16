@@ -3,9 +3,9 @@
 import pytest
 from flask import json
 
-def test_sensor_post_empty(client):
+def test_sensor_post_empty(flask_client, create_space):
     """Test an API call to post empty sensor data"""
-    result = client.post('/sensor_api/v1/', data=dict(
+    result = flask_client.post('/sensor_api/v1/', json=dict(
         temperature=19.3,
         humidity=58.3,
         power=523.23,

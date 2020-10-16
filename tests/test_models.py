@@ -2,12 +2,10 @@
 
 from decimal import Decimal
 
-import pytest
-
 from tuinbouwer_server_api import models
 
 
-def test_space_add(flask):
+def test_space_add(flask_client):
     """Test adding space to database"""
     space = models.Space()
     space.name = 'test space'
@@ -17,7 +15,7 @@ def test_space_add(flask):
     assert isinstance(space.name, str), "The name should be a str"
     assert space.name == 'test space', "The name should be 'test space'"
 
-def test_plant_add(flask):
+def test_plant_add(flask_client):
     """Test adding plant to database"""
     plant = models.Plant()
     plant.name = 'test plant'
@@ -31,12 +29,13 @@ def test_plant_add(flask):
     assert isinstance(plant.number, int), "The number should be an int"
     assert plant.name == 'test plant', "The name should 'test plant'"
 
-def test_sensor_log_add(flask):
+def test_sensor_log_add(flask_client):
     """Test adding sensor log to database"""
     sensor_log = models.SensorLog()
     sensor_log.temperature = 19.3
     sensor_log.humidity = 30
     sensor_log.power = 353.34
+    sensor_log.space_id = 1
     models.db.session.add(sensor_log)
     models.db.session.commit()
     assert isinstance(sensor_log.id, int), "Sensor log id should be an int"

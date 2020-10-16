@@ -61,3 +61,12 @@ class SensorLog(db.Model):
     # Power in watts
     power = db.Column(db.DECIMAL(6, 2), nullable=False)
     space_id = db.Column(db.Integer, db.ForeignKey('space.id'), nullable=False)
+
+    def to_dict(self):
+        """return serializale dict of object"""
+        return {
+            'temperature': str(self.temperature),
+            'humidity': str(self.humidity),
+            'power': str(self.power),
+            'space_id': self.space_id,
+        }

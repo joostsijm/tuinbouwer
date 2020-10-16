@@ -21,6 +21,7 @@ setuptools.setup(
         "requests",
         "python-dotenv",
         "apscheduler",
+        "Adafruit_Python_DHT",
     ],
     entry_points = {
         'console_scripts': ['tuinbouwer_sensor=tuinbouwer_sensor.__main__:main'],

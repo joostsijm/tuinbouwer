@@ -4,7 +4,7 @@ from decimal import Decimal
 
 import pytest
 
-from tuinbouwerserver_api import models
+from tuinbouwer_server_api import models
 
 
 def test_space_add(flask):

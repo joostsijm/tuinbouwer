@@ -22,8 +22,8 @@ def post_sensor_log(sensor_log):
             LOGGER.error(error)
             LOGGER.info("Trying again to POST sensor log")
         if response:
-            html = response.text
+            json = response.get_json()
         else:
             time.sleep(5)
             tries += 1
-    return html
+    return json

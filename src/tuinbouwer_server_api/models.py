@@ -25,7 +25,9 @@ class Space(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     plants = db.relationship('Plant', secondary=plants, lazy='subquery',
-        backref=db.backref('pages', lazy=True))
+        backref=db.backref('space', lazy=True))
+    sensor_logs = db.relationship('SensorLog', lazy='subquery',
+        backref=db.backref('space', lazy=True))
 
 
 class Plant(db.Model):
@@ -58,3 +60,4 @@ class SensorLog(db.Model):
     humidity = db.Column(db.DECIMAL(3, 1), nullable=False)
     # Power in watts
     power = db.Column(db.DECIMAL(6, 2), nullable=False)
+    space_id = db.Column(db.Integer, db.ForeignKey('space.id'), nullable=False)

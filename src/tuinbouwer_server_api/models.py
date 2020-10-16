@@ -56,11 +56,23 @@ class SensorLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # Temperature in celcius
     temperature = db.Column(db.DECIMAL(3, 1), nullable=False)
+    min_temperature = db.Column(db.DECIMAL(3, 1))
+    max_temperature = db.Column(db.DECIMAL(3, 1))
     # Air humidity
     humidity = db.Column(db.DECIMAL(3, 1), nullable=False)
+    min_humidity = db.Column(db.DECIMAL(3, 1))
+    max_humidity = db.Column(db.DECIMAL(3, 1))
     # Power in watts
     power = db.Column(db.DECIMAL(6, 2), nullable=False)
+    min_power = db.Column(db.DECIMAL(6, 2))
+    max_power = db.Column(db.DECIMAL(6, 2))
     space_id = db.Column(db.Integer, db.ForeignKey('space.id'), nullable=False)
+    log_type = db.Column(db.String)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'sensor_log',
+        'polymorphic_on': log_type
+    }
 
     def to_dict(self):
         """return serializale dict of object"""
@@ -70,3 +82,44 @@ class SensorLog(db.Model):
             'power': str(self.power),
             'space_id': self.space_id,
         }
+
+class MinuteLog(SensorLog):
+    """Model for minute log"""
+    id = db.Column(db.Integer, db.ForeignKey('sensor_log.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'minute_log',
+    }
+
+class HourLog(SensorLog):
+    """Model for hour log"""
+    id = db.Column(db.Integer, db.ForeignKey('sensor_log.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'hour_log',
+    }
+
+
+class DayLog(SensorLog):
+    """Model for Day log"""
+    id = db.Column(db.Integer, db.ForeignKey('sensor_log.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'day_log',
+    }
+
+class WeekLog(SensorLog):
+    """Model for week log"""
+    id = db.Column(db.Integer, db.ForeignKey('sensor_log.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'week_log',
+    }
+
+class MonthLog(SensorLog):
+    """Model for month log"""
+    id = db.Column(db.Integer, db.ForeignKey('sensor_log.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'month_log',
+    }

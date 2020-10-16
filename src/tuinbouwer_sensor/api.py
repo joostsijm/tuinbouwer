@@ -14,7 +14,7 @@ def post_sensor_log(sensor_log):
     while not html and tries <= 3:
         try:
             response = requests.post(
-                '{}'.format(BASE_URL),
+                '{}{}'.format(BASE_URL, 'sensor_api/v1/'),
                 headers=HEADERS,
                 data=sensor_log,
             )

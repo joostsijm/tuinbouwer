@@ -14,7 +14,7 @@ Read humidity and temperature from DHT22 sensor connected to pin 4.
 The following example variables should be placed in `.env`.
 ```
 AUTHORIZATION=PLACEHOLDER
-API_URL='http://localhost:5000/sensor_api/v1/'
+API_URL='http://localhost:5000/'
 ```
 
 * `AUTHORIZATION` authentication key, currently not used

@@ -15,7 +15,7 @@ def post_sensor_log(sensor_log):
             response = requests.post(
                 '{}{}'.format(BASE_URL, 'sensor_api/v1/'),
                 headers=HEADERS,
-                data=sensor_log,
+                json=sensor_log,
             )
             LOGGER.info(response)
             LOGGER.info(response.text)

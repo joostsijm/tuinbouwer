@@ -43,7 +43,7 @@ SCHEDULER_LOGGER.addHandler(STREAM_HANDLER)
 SCHEDULER_LOGGER.addHandler(FILE_HANDLER)
 
 # api
-BASE_URL = os.environ["API_URL"]
+BASE_URL = os.environ.get('API_URL', None)
 HEADERS = {
-    'Authorization': os.environ["AUTHORIZATION"]
+    'Authorization': os.environ.get('AUTHORIZATION', 'http://localhost:5000/')
 }

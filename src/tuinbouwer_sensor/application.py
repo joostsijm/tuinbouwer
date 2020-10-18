@@ -12,7 +12,7 @@ def send_log_information():
     sensor_log['space_id'] = SPACE_ID
     sensor_log['temperature'] = temperature
     sensor_log['humidity'] = humidity
-    sensor_log['watt'] = 0
+    sensor_log['power'] = 0
     LOGGER.info('finished gathering sensor data %s', sensor_log)
 
     LOGGER.info('start sending sensor data')

@@ -42,6 +42,9 @@ LOGGER.addHandler(FILE_HANDLER)
 SCHEDULER_LOGGER.addHandler(STREAM_HANDLER)
 SCHEDULER_LOGGER.addHandler(FILE_HANDLER)
 
+# space
+SPACE_ID = os.environ.get('SPACE_ID', 1)
+
 # api
 BASE_URL = os.environ.get('API_URL', None)
 HEADERS = {

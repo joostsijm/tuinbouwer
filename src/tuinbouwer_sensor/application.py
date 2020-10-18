@@ -1,6 +1,6 @@
 """general methods"""
 
-from tuinbouwer_sensor import LOGGER, api, sensor
+from tuinbouwer_sensor import LOGGER, SPACE_ID, api, sensor
 
 
 def send_log_information():
@@ -9,6 +9,7 @@ def send_log_information():
     humidity, temperature = sensor.read_sensor()
     LOGGER.info('finished gathering humidity %s and temperature %s', humidity, temperature)
     sensor_log = {}
+    sensor_log['space_id'] = SPACE_ID
     sensor_log['temperature'] = temperature
     sensor_log['humidity'] = humidity
     sensor_log['watt'] = 0

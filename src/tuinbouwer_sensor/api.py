@@ -17,8 +17,8 @@ def post_sensor_log(sensor_log):
                 headers=HEADERS,
                 data=sensor_log,
             )
+            LOGGER.info(response)
             if response:
-                LOGGER.info(response)
                 return response.get_json()
         except requests.exceptions.ConnectionError as error:
             LOGGER.error(error)

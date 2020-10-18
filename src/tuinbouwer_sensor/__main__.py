@@ -8,7 +8,7 @@ from tuinbouwer_sensor import SCHEDULER, LOGGER, jobs
 
 def main():
     """Main method"""
-    # jobs.send_log_information()
+    jobs.send_log_information()
 
     LOGGER.info('Starting application')
     SCHEDULER.add_job(

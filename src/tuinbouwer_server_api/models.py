@@ -1,5 +1,7 @@
 """Models"""
 
+from datetime import datetime
+
 from sqlalchemy import MetaData
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -54,6 +56,8 @@ class Plant(db.Model):
 class SensorLog(db.Model):
     """Model for sensor log"""
     id = db.Column(db.Integer, primary_key=True)
+    # Date time
+    date_time = db.Column(db.DateTime, default=datetime.now)
     # Temperature in celcius
     temperature = db.Column(db.DECIMAL(3, 1), nullable=False)
     min_temperature = db.Column(db.DECIMAL(3, 1))

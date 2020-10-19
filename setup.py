@@ -20,7 +20,8 @@ setuptools.setup(
     install_requires=[
         "flask",
         "python-dotenv",
-        "flask_sqlalchemy",
+        "flask-sqlalchemy",
+        "flask-apscheduler",
     ],
     entry_points = {
         'console_scripts': ['tuinbouwer_server_api=tuinbouwer_server_api.__main__:main'],

@@ -15,6 +15,7 @@ python-dotenv = "*"
 flask-sqlalchemy = "*"
 flask-migrate = "*"
 APScheduler = "*"
+flask-apscheduler = "*"
 
 [requires]
 python_version = "3.8"

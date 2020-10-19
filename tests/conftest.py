@@ -19,11 +19,13 @@ def flask_client():
     app = create_app({
         'TESTING': True,
         'SQLALCHEMY_DATABASE_URI': 'sqlite:////' + db_path + '.sqlite',
+        # 'SQLALCHEMY_DATABASE_URI': 'postgresql://tuinbouwer@localhost/tuinbouwer_test',
     })
 
     with app.test_client() as client:
         with app.app_context():
-            flask_migrate.upgrade()
+            # flask_migrate.upgrade()
+            models.db.create_all()
             yield client
 
     os.close(db_fd)

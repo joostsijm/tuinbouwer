@@ -30,10 +30,15 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    # register the database models
+    # SQLAlchemy
     from tuinbouwer_server_api.models import db, migrate
     db.init_app(app)
     migrate.init_app(app, db)
+
+    # Apscheduler
+    from tuinbouwer_server_api.scheduler import scheduler
+    scheduler.init_app(app)
+    # scheduler.start()
 
     app.register_blueprint(sensor_api.sensor_api)
 

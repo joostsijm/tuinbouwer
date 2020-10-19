@@ -36,9 +36,10 @@ def create_app(test_config=None):
     migrate.init_app(app, db)
 
     # Apscheduler
-    from tuinbouwer_server_api.scheduler import scheduler
+    from tuinbouwer_server_api.scheduler import scheduler, start_jobs
     scheduler.init_app(app)
-    # scheduler.start()
+    scheduler.start()
+    start_jobs()
 
     app.register_blueprint(sensor_api.sensor_api)
 

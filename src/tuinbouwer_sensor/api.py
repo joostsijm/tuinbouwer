@@ -17,8 +17,6 @@ def post_sensor_log(sensor_log):
                 headers=HEADERS,
                 json=sensor_log,
             )
-            LOGGER.info(response)
-            LOGGER.info(response.text)
             if response:
                 return response.json()
         except requests.exceptions.ConnectionError as error:
@@ -27,6 +25,9 @@ def post_sensor_log(sensor_log):
         except requests.exceptions.MissingSchema as error:
             LOGGER.error(error)
             LOGGER.info("Something is wrong with the URL")
+        except Exception as error:
+            LOGGER.info("Something wrong with API request")
+            LOGGER.info(error)
         LOGGER.info("Trying again to POST sensor log")
         time.sleep(5)
         tries += 1

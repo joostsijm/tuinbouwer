@@ -16,6 +16,7 @@ flask-sqlalchemy = "*"
 flask-migrate = "*"
 APScheduler = "*"
 flask-apscheduler = "*"
+flask-cors = "*"
 
 [requires]
 python_version = "3.8"

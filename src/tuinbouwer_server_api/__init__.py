@@ -4,8 +4,9 @@ import os
 
 from flask import Flask
 from dotenv import load_dotenv
+from flask_cors import CORS
 
-from tuinbouwer_server_api  import sensor_api
+from tuinbouwer_server_api.blueprints import sensor_api, frontend
 
 
 load_dotenv()
@@ -40,7 +41,11 @@ def create_app(test_config=None):
     scheduler.init_app(app)
     scheduler.start()
     start_jobs()
+    
+    # CORS
+    CORS(app, resources={r'/*': {'origins': '*'}})
 
     app.register_blueprint(sensor_api.sensor_api)
+    app.register_blueprint(frontend.frontend)
 
     return app

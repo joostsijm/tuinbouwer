@@ -30,17 +30,23 @@ def summarize_log(summary_log, start_time, time_delta):
 
 def calculate_min_max_average(summary_log, logs, attribute):
     """Calculate the min, max, and average of a set"""
-    min_value = 1e9
-    max_value = -1e9
-    total_value = 0
-    for log in logs:
-        value = getattr(log, attribute)
-        total_value += value
-        if value <= min_value:
-            min_value = value
-        if value >= max_value:
-            max_value = value
+    if summary_log:
+        min_value = 1e9
+        max_value = -1e9
+        total_value = 0
+        for log in logs:
+            value = getattr(log, attribute)
+            total_value += value
+            if value <= min_value:
+                min_value = value
+            if value >= max_value:
+                max_value = value
+        avg_value = round(total_value / len(logs), 2)
+    else:
+        min_value = 0
+        max_value = 0
+        avg_value = 0
 
     setattr(summary_log, "min_{}".format(attribute), min_value)
     setattr(summary_log, "max_{}".format(attribute), max_value)
-    setattr(summary_log, attribute, round(total_value / len(logs), 2))
+    setattr(summary_log, attribute, avg_value)

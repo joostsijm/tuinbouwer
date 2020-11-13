@@ -27,14 +27,36 @@ def spaces_overview():
     spaces = models.Space.query.all()
     spaces_dict = {}
     for space in spaces:
-        log = models.HourLog()
-        log.space_id = space.id
-        now = functions.round_time(datetime.now(), 60)
-        functions.summarize_log(log, now, timedelta(hours=1))
+        log = models.HourLog.query.order_by(models.HourLog.date_time.desc()).first()
         spaces_dict[space.id] = {
+            'id': space.id,
             'name': space.name,
-            'min_temp': log.min_temperature,
-            'max_temp': log.max_temperature,
-            'avg_temp': log.temperature,
+            'min_temperature': log.min_temperature,
+            'max_temperature': log.max_temperature,
+            'avg_temperature': log.temperature,
+            'date_time': log.date_time,
         }
     return spaces_dict
+
+@frontend.route('/spaces/<int:space_id>/log/day')
+def spaces_log_day(space_id):
+    """Get log of last day from space"""
+    space = models.Space.query.get(space_id)
+    date_time = datetime.now() - timedelta(days=1)
+    hour_logs = models.HourLog.query.filter( \
+        models.HourLog.space_id == space.id,
+        models.HourLog.date_time > date_time,
+    ).all()
+    logs = []
+    for log in hour_logs:
+        logs.append({
+            'id': log.id,
+            'date_time': log.date_time,
+            'min_temperature': log.min_temperature,
+            'max_temperature': log.max_temperature,
+            'avg_temperature': log.temperature,
+        })
+    return {
+        'id': space.id,
+        'logs': logs,
+    }

@@ -1,8 +1,9 @@
 """Flask application"""
 
 import os
+import decimal
 
-from flask import Flask
+from flask import Flask, json
 from dotenv import load_dotenv
 from flask_cors import CORS
 
@@ -10,6 +11,15 @@ from tuinbouwer_server_api.blueprints import sensor_api, frontend
 
 
 load_dotenv()
+
+class JSONEncoder(json.JSONEncoder):
+    """Custom JSON encoder"""
+    def default(self, obj):
+        if isinstance(obj, decimal.Decimal):
+            # Convert decimal instances to strings.
+            return str(obj)
+        return super(JSONEncoder, self).default(obj)
+
 
 def create_app(test_config=None):
     """Create and configure the app"""
@@ -30,6 +40,9 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    # Set custom json encoder
+    app.json_encoder = JSONEncoder
 
     # SQLAlchemy
     from tuinbouwer_server_api.models import db, migrate

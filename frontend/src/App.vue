@@ -1,38 +1,31 @@
 <template>
 <div id="app">
   <h1>Tuinbouwer</h1>
-  <h2>Spaces</h2>
-  <ul>
-    <li v-for="(space, index) in spaces" :key="index">
-      {{ space.name }}
-    </li>
-  </ul>
-  <Overview />
+  <h2>Spacess</h2>
+  <SpacesOverview @select-space="selectSpace" />
+  <SpaceLog :space_id="space_id" v-if="space_id != 0"/>
 </div>
 </template>
 
 <script>
-import Overview from './components/Overview.vue'
+import SpacesOverview from './components/SpacesOverview.vue'
+import SpaceLog from './components/SpaceLog.vue'
 
 export default {
   name: 'App',
   components: {
-      Overview
+      SpacesOverview,
+      SpaceLog
   },
   data: function(){
     return {
-      spaces: []
+      space_id: 0
     }
   },
-  created: async function(){
-    const gResponse = await fetch("http://localhost:5000/frontend/spaces");
-    const gObject = await gResponse.json();
-    this.flaskSpaces = gObject
+  methods: {
+    selectSpace(id) {
+      this.space_id = id
+    }
   }
 }
 </script>
-
-<style>
-#app {
-}
-</style>

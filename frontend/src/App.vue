@@ -1,7 +1,7 @@
 <template>
 <div id="app">
   <h1>Tuinbouwer</h1>
-  <h2>Spacess</h2>
+  <h2>Spaces</h2>
   <SpacesOverview @select-space="selectSpace" />
   <SpaceLog :space_id="space_id" v-if="space_id != 0"/>
 </div>

@@ -1,10 +1,9 @@
 <template>
   <div>
-    <button v-on:click="getLogs">Refesh</button>
-    <button v-on:click="log_type = 'day'">Day</button>
-    <button v-on:click="log_type = 'hour'">Hour</button>
-    <ul>
-    </ul>
+    <button @click="getLogs">Refesh</button>
+    <button @click="log_type = 'day'" :disabled="log_type == 'day'">Day</button>
+    <button @click="log_type = 'hour'" :disabled="log_type == 'hour'">Hour</button>
+    <span>{{ logs.length }} items</span>
     <table>
       <thead>
         <tr>

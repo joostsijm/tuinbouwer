@@ -30,7 +30,7 @@ def summarize_log(summary_log, start_time, time_delta):
 
 def calculate_min_max_average(summary_log, logs, attribute):
     """Calculate the min, max, and average of a set"""
-    if summary_log:
+    if logs:
         min_value = 1e9
         max_value = -1e9
         total_value = 0

@@ -15,7 +15,7 @@ export default {
   name: 'App',
   components: {
       SpacesOverview,
-      SpaceLog
+      SpaceLog,
   },
   data: function(){
     return {

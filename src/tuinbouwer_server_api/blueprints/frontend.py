@@ -39,10 +39,44 @@ def spaces_overview():
     return spaces_dict
 
 @frontend.route('/spaces/<int:space_id>/log/day')
-def spaces_log_day(space_id):
-    """Get log of last day from space"""
+@frontend.route('/spaces/<int:space_id>/log/day/<int:timestamp>')
+def spaces_log_day(space_id, timestamp=None):
+    """Get day logs from space"""
     space = models.Space.query.get(space_id)
-    date_time = datetime.now() - timedelta(days=1)
+    if timestamp:
+        date_time = datetime.fromtimestamp(timestamp)
+    else:
+        date_time = datetime.now() - timedelta(days=31)
+    day_logs = models.DayLog.query.order_by(models.MinuteLog.date_time.desc()).filter( \
+        models.DayLog.space_id == space.id,
+        models.DayLog.date_time > date_time,
+    ).all()
+    logs = []
+    for log in day_logs:
+        logs.append({
+            'id': log.id,
+            'date_time': log.date_time,
+            'min_temperature': log.min_temperature,
+            'max_temperature': log.max_temperature,
+            'avg_temperature': log.temperature,
+            'min_humidity': log.min_humidity,
+            'max_humidity': log.max_humidity,
+            'avg_humidity': log.humidity,
+        })
+    return {
+        'id': space.id,
+        'logs': logs,
+    }
+
+@frontend.route('/spaces/<int:space_id>/log/hour')
+@frontend.route('/spaces/<int:space_id>/log/hour/<int:timestamp>')
+def spaces_log_hour(space_id, timestamp=None):
+    """Get hour logs from space"""
+    space = models.Space.query.get(space_id)
+    if timestamp:
+        date_time = datetime.fromtimestamp(timestamp)
+    else:
+        date_time = datetime.now() - timedelta(days=1)
     hour_logs = models.HourLog.query.order_by(models.MinuteLog.date_time.desc()).filter( \
         models.HourLog.space_id == space.id,
         models.HourLog.date_time > date_time,
@@ -55,17 +89,24 @@ def spaces_log_day(space_id):
             'min_temperature': log.min_temperature,
             'max_temperature': log.max_temperature,
             'avg_temperature': log.temperature,
+            'min_humidity': log.min_humidity,
+            'max_humidity': log.max_humidity,
+            'avg_humidity': log.humidity,
         })
     return {
         'id': space.id,
         'logs': logs,
     }
 
-@frontend.route('/spaces/<int:space_id>/log/hour')
-def spaces_log_hour(space_id):
+@frontend.route('/spaces/<int:space_id>/log/minute')
+@frontend.route('/spaces/<int:space_id>/log/minute/<int:timestamp>')
+def spaces_log_minute(space_id, timestamp=None):
     """Get log of last hour from space"""
     space = models.Space.query.get(space_id)
-    date_time = datetime.now() - timedelta(hours=1)
+    if timestamp:
+        date_time = datetime.fromtimestamp(timestamp)
+    else:
+        date_time = datetime.now() - timedelta(hours=1)
     minute_logs = models.MinuteLog.query.order_by(models.MinuteLog.date_time.desc()).filter( \
         models.MinuteLog.space_id == space.id,
         models.MinuteLog.date_time > date_time,
@@ -75,9 +116,8 @@ def spaces_log_hour(space_id):
         logs.append({
             'id': log.id,
             'date_time': log.date_time,
-            'min_temperature': log.min_temperature,
-            'max_temperature': log.max_temperature,
             'avg_temperature': log.temperature,
+            'avg_humidity': log.humidity,
         })
     return {
         'id': space.id,

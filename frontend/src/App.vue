@@ -14,12 +14,12 @@ import SpaceLog from './components/SpaceLog.vue'
 export default {
   name: 'App',
   components: {
-      SpacesOverview,
-      SpaceLog,
+    SpacesOverview,
+    SpaceLog,
   },
   data: function(){
     return {
-      space_id: 0
+      space_id: 0,
     }
   },
   methods: {

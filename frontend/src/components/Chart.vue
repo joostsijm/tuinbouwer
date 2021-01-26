@@ -25,11 +25,24 @@ export default {
       chart.paddingRight = 20
       chart.data = this.chartData
 
+      // https://www.amcharts.com/docs/v4/concepts/axes/date-axis/
       let dateAxis = chart.xAxes.push(new am4charts.DateAxis())
+      console.log(this.chartType)
       dateAxis.baseInterval = {
-        'timeUnit': this.timeUnit,
+        'timeUnit': this.chartType,
       }
       dateAxis.renderer.grid.template.location = 0
+      dateAxis.gridIntervals.setAll([
+        { timeUnit: 'minute', count: 1 },
+        { timeUnit: 'hour', count: 1 },
+        { timeUnit: 'day', count: 1 },
+      ]);
+
+      // https://www.amcharts.com/docs/v4/tutorials/wrapping-and-truncating-axis-labels/
+      let label = dateAxis.renderer.labels.template;
+      label.rotation = -45;
+      label.horizontalCenter = 'right';
+      label.verticalCenter = 'middle';
 
       let valueAxis = chart.yAxes.push(new am4charts.ValueAxis())
       valueAxis.tooltip.disabled = true
@@ -119,17 +132,6 @@ export default {
         ).dispose()
       }
     },
-  },
-  computed: {
-    timeUnit: function() {
-      if (this.chartType == 'day') {
-        return 'hour'
-      }
-      if (this.chartType == 'hour') {
-        return 'second'
-      }
-      return null
-    }
   }
 }
 </script>

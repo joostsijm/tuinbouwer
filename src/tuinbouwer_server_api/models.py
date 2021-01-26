@@ -26,9 +26,9 @@ class Space(db.Model):
     """Model for space"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    plants = db.relationship('Plant', secondary=plants, lazy='subquery',
+    plants = db.relationship('Plant', secondary=plants, lazy='dynamic',
         backref=db.backref('space', lazy=True))
-    sensor_logs = db.relationship('SensorLog', lazy='subquery',
+    sensor_logs = db.relationship('SensorLog', lazy='dynamic',
         backref=db.backref('space', lazy=True))
 
 

@@ -7,13 +7,15 @@
         min: {{ space.min_temperature }}
         max: {{ space.max_temperature }}
         avg: {{ space.avg_temperature }}<br>
-        update: {{ space.date_time }}
+        update: {{ formatDate(space.date_time) }}
       </li>
     </ul>
   </div>
 </template>
 
 <script>
+import moment from 'moment'
+
 export default {
   name: 'SpacesOverview',
   data: function(){
@@ -22,13 +24,17 @@ export default {
     }
   },
   created: async function(){
-    const response = await fetch("http://localhost:5000/frontend/spaces/overview");
-    const object = await response.json();
-    this.spaces = object
+    const response = await fetch("http://localhost:5000/frontend/spaces/overview")
+    this.spaces = await response.json()
   },
   methods: {
     selectedSpace(index) {
       this.$emit('select-space', this.spaces[index].id)
+    },
+    formatDate(value) {
+      if (!value) return ''
+      value = value.toString()
+      return moment(value).format('YYYY-MM-DD hh:mm')
     }
   }
 }

@@ -2,9 +2,11 @@
   <div>
     <button @click="temperature = !temperature">Temperature</button>
     <button @click="humidity = !humidity">Humidity</button>
+    <br>
     <button @click="logType = 'day'" :disabled="logType == 'day'">Day</button>
     <button @click="logType = 'hour'" :disabled="logType == 'hour'">Hour</button>
     <button @click="logType = 'minute'" :disabled="logType == 'minute'">Minute</button>
+    <br>
     <input type="number" v-model="timeField" @keydown="timeKeydown($event)" placeholder="time" />
     <button @click="getLogs">Refesh</button>
     <span>{{ logs.length }} items</span>
@@ -23,7 +25,7 @@
           <td>Loading...</td>
         </tr>
         <tr v-for="(log, index) in logs" :key="index">
-          <td>{{ log.date_time }}</td>
+          <td>{{ formatDate(log.date_time) }}</td>
           <td>{{ log.min_temperature }}</td>
           <td>{{ log.max_temperature }}</td>
           <td>{{ log.avg_temperature }}</td>
@@ -34,6 +36,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 import Chart from './Chart.vue'
 
 export default {
@@ -42,7 +45,7 @@ export default {
     Chart,
   },
   props: {
-    space_id: String
+    space_id: Number
   },
   data: function() {
     return {
@@ -73,6 +76,11 @@ export default {
       if (!number && e.key != 'ArrowLeft' && e.key != 'ArrowRight' && e.key != 'Backspace') {
         e.preventDefault()
       }
+    },
+    formatDate(value) {
+      if (!value) return ''
+      value = value.toString()
+      return moment(value).format('YYYY-MM-DD HH:mm')
     }
   },
   created: function(){

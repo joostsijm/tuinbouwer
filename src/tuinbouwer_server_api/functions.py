@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 
 from tuinbouwer_server_api import models
 
+class NoLogsError(Exception):
+    """No logs"""
 
 def round_time(date_time=None, round_to=60):
     """Round a datetime object to any time lapse in seconds
@@ -23,6 +25,8 @@ def summarize_log(summary_log, start_time, time_delta):
         .filter(models.MinuteLog.date_time <= start_time) \
         .filter(models.MinuteLog.date_time >= start_time - time_delta) \
         .all()
+    if len(minute_logs) == 0:
+        raise NoLogsError()
 
     calculate_min_max_average(summary_log, minute_logs, 'temperature')
     calculate_min_max_average(summary_log, minute_logs, 'humidity')

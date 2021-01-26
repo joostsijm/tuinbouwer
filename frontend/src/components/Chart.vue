@@ -6,15 +6,12 @@
 <script>
 import * as am4core from "@amcharts/amcharts4/core"
 import * as am4charts from "@amcharts/amcharts4/charts"
-// import am4themes_animated from "@amcharts/amcharts4/themes/animated"
-
-// am4core.useTheme(am4themes_animated)
 
 export default {
   name: 'Chart',
   props: {
+    chartType: String,
     chartData: Array,
-    logType: String,
     temperature: Boolean,
     humidity: Boolean,
   },
@@ -82,6 +79,7 @@ export default {
   },
   watch: { 
     chartData: function() {
+      this.chart.dispose()
       this.generateArc()
       this.generateTemperatureLineSeries()
     },
@@ -90,7 +88,7 @@ export default {
         this.generateTemperatureLineSeries()
       }
       else {
-        if (this.logType != 'minute') {
+        if (this.chartType != 'minute') {
           this.chart.series.removeIndex(
             this.chart.series.indexOf(this.minTemperatureSeries)
           ).dispose()
@@ -108,7 +106,7 @@ export default {
         this.generateHumidityLineSeries()
       }
       else {
-        if (this.logType != 'minute') {
+        if (this.chartType != 'minute') {
           this.chart.series.removeIndex(
             this.chart.series.indexOf(this.minHumiditySeries)
           ).dispose()
@@ -124,10 +122,10 @@ export default {
   },
   computed: {
     timeUnit: function() {
-      if (this.logType == 'day') {
+      if (this.chartType == 'day') {
         return 'hour'
       }
-      if (this.logType == 'hour') {
+      if (this.chartType == 'hour') {
         return 'second'
       }
       return null

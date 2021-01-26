@@ -44,8 +44,11 @@ def hour_job():
             hour_log = models.HourLog()
             hour_log.space_id = space.id
             now = functions.round_time(datetime.now(), 60)
-            functions.summarize_log(hour_log, now, timedelta(hours=1))
-            models.db.session.add(hour_log)
+            try:
+                functions.summarize_log(hour_log, now, timedelta(hours=1))
+                models.db.session.add(hour_log)
+            except functions.NoLogsError:
+                print('no logs for hour log')
         models.db.session.commit()
 
 def day_job():
@@ -56,8 +59,11 @@ def day_job():
             day_log = models.DayLog()
             day_log.space_id = space.id
             now = functions.round_time(datetime.now(), 60)
-            functions.summarize_log(day_log, now, timedelta(days=1))
-            models.db.session.add(day_log)
+            try:
+                functions.summarize_log(day_log, now, timedelta(days=1))
+                models.db.session.add(day_log)
+            except functions.NoLogsError:
+                print('no logs for day log')
         models.db.session.commit()
 
 def week_job():
@@ -68,8 +74,11 @@ def week_job():
             week_log = models.WeekLog()
             week_log.space_id = space.id
             now = functions.round_time(datetime.now(), 60)
-            functions.summarize_log(week_log, now, timedelta(weeks=1))
-            models.db.session.add(week_log)
+            try:
+                functions.summarize_log(week_log, now, timedelta(weeks=1))
+                models.db.session.add(week_log)
+            except functions.NoLogsError:
+                print('no logs for week log')
         models.db.session.commit()
 
 def month_job():
@@ -80,8 +89,11 @@ def month_job():
             month_log = models.MonthLog()
             month_log.space_id = space.id
             now = functions.round_time(datetime.now(), 60)
-            functions.summarize_log(month_log, now, timedelta(months=1))
-            models.db.session.add(month_log)
+            try:
+                functions.summarize_log(month_log, now, timedelta(months=1))
+                models.db.session.add(month_log)
+            except functions.NoLogsError:
+                print('no logs for month log')
         models.db.session.commit()
 
 if __name__ == "__main__":

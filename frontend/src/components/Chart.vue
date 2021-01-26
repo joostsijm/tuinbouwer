@@ -1,5 +1,12 @@
 <template>
-  <h3>Chart</h3>
+  <h3>Chart |
+    <span>{{ chartType }} ago | </span>
+    <span>{{ chartData.length }} items | </span>
+    <span v-if="temperature">Temperature | </span>
+    <span v-if="humidity">Humidity</span>
+  </h3>
+    
+    
   <div id="chart"></div>
 </template>
 
@@ -27,13 +34,15 @@ export default {
 
       // https://www.amcharts.com/docs/v4/concepts/axes/date-axis/
       let dateAxis = chart.xAxes.push(new am4charts.DateAxis())
-      console.log(this.chartType)
       dateAxis.baseInterval = {
-        'timeUnit': this.chartType,
+        'timeUnit': this.timeUnit,
       }
       dateAxis.renderer.grid.template.location = 0
       dateAxis.gridIntervals.setAll([
         { timeUnit: 'minute', count: 1 },
+        { timeUnit: 'minute', count: 5 },
+        { timeUnit: 'minute', count: 10 },
+        { timeUnit: 'minute', count: 30 },
         { timeUnit: 'hour', count: 1 },
         { timeUnit: 'day', count: 1 },
       ]);
@@ -132,6 +141,23 @@ export default {
         ).dispose()
       }
     },
+  },
+  computed: {
+    timeUnit: function() {
+      if (this.chartType == 'hour') {
+        return 'minute'
+      }
+      if (this.chartType == 'day') {
+        return 'hour'
+      }
+      if (this.chartType == 'week') {
+        return 'day'
+      }
+      if (this.chartType == 'month') {
+        return 'day'
+      }
+      return null
+    }
   }
 }
 </script>

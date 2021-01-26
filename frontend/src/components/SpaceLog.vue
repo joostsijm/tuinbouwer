@@ -1,15 +1,15 @@
 <template>
   <div>
+    <button @click="logType = 'hour'" :disabled="logType == 'hour'">Hour</button>
+    <button @click="logType = 'day'" :disabled="logType == 'day'">Day</button>
+    <button @click="logType = 'week'" :disabled="logType == 'week'">week</button>
+    <button @click="logType = 'month'" :disabled="logType == 'month'">month</button>
+    <br>
     <button @click="temperature = !temperature">Temperature</button>
     <button @click="humidity = !humidity">Humidity</button>
-    <br>
-    <button @click="logType = 'day'" :disabled="logType == 'day'">Day</button>
-    <button @click="logType = 'hour'" :disabled="logType == 'hour'">Hour</button>
-    <button @click="logType = 'minute'" :disabled="logType == 'minute'">Minute</button>
-    <br>
-    <input type="number" v-model="timeField" @keydown="timeKeydown($event)" placeholder="time" />
+    <button @click="timePosition += 1">&lt;</button>
+    <button @click="timePosition -= 1" :disabled="timePosition <= 1">&gt;</button>
     <button @click="getLogs">Refesh</button>
-    <span>{{ logs.length }} items</span>
     <Chart :chartType=logType :chartData=chartData :temperature=temperature :humidity=humidity />
     <table>
       <thead>
@@ -25,7 +25,7 @@
           <td>Loading...</td>
         </tr>
         <tr v-for="(log, index) in logs" :key="index">
-          <td>{{ formatDate(log.date_time) }}</td>
+          <td>{{ log.date_time }}</td>
           <td>{{ log.min_temperature }}</td>
           <td>{{ log.max_temperature }}</td>
           <td>{{ log.avg_temperature }}</td>
@@ -36,7 +36,6 @@
 </template>
 
 <script>
-import moment from 'moment'
 import Chart from './Chart.vue'
 
 export default {
@@ -51,23 +50,21 @@ export default {
     return {
       temperature: true,
       humidity: false,
-      logs: null,
-      date_time: null,
+      logs: [],
       logType: 'hour',
-      timeField: null,
-      startDate: null,
+      timeUnit: 'minute',
+      timePosition: 1,
+      time: 1000 * 60 * 60,
+      startDate: new Date(),
     }
   },
   methods: {
     getLogs: async function() {
-      this.logs = []
-      let response = null
+      let url = 'http://localhost:5000/frontend/spaces/' + this.space_id + '/log/' + this.timeUnit
       if (this.startDate) {
-        response = await fetch('http://localhost:5000/frontend/spaces/' + this.space_id + '/log/' + this.logType + '/' + this.startTimestamp)
+        url += '/' + Math.round(this.startDate.getTime() / 1000)
       }
-      else {
-        response = await fetch('http://localhost:5000/frontend/spaces/' + this.space_id + '/log/' + this.logType)
-      }
+      let response = await fetch(url)
       const object = await response.json()
       this.logs = object.logs
     },
@@ -76,14 +73,10 @@ export default {
       if (!number && e.key != 'ArrowLeft' && e.key != 'ArrowRight' && e.key != 'Backspace') {
         e.preventDefault()
       }
-    },
-    formatDate(value) {
-      if (!value) return ''
-      value = value.toString()
-      return moment(value).format('YYYY-MM-DD HH:mm')
     }
   },
   created: function(){
+    this.startDate.setTime(new Date().getTime() - this.time * this.timePosition)
     this.getLogs()
   },
   watch: {
@@ -91,22 +84,27 @@ export default {
       this.getLogs()
     },
     logType: function() {
+      this.timePosition = 1
+      if (this.logType == 'hour') {
+        this.time = 1000 * 60 * 60 
+        this.timeUnit = 'minute'
+      }
       if (this.logType == 'day') {
-        this.time == 31
+        this.time = 1000 * 60 * 60 * 24
+        this.timeUnit = 'hour'
+      }
+      if (this.logType == 'week') {
+        this.time = 1000 * 60 * 60 * 24 * 7
+        this.timeUnit = 'day'
+      }
+      if (this.logType == 'month') {
+        this.time = 1000 * 60 * 60 * 24 * 31
+        this.timeUnit = 'day'
       }
       this.getLogs()
     },
-    timeField: function() {
-      var newDate = new Date()
-      if (this.logType == 'hour') {
-        newDate.setDate(newDate.getDate() - this.timeField)
-      }
-      if (this.logType == 'minute') {
-        newDate.setTime(newDate.getTime() - (this.timeField*60*60*1000))
-      }
-      this.startDate = newDate
-    },
-    startDate: function() {
+    timePosition: function() {
+      this.startDate.setTime(new Date().getTime() - this.time * this.timePosition)
       this.getLogs()
     }
   },
@@ -125,9 +123,6 @@ export default {
         })
       }
       return data
-    },
-    startTimestamp: function() {
-      return Math.round(this.startDate.getTime() / 1000)
     }
   }
 }

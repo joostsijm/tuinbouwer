@@ -7,14 +7,22 @@
     <br>
     <button @click="temperature = !temperature">Temperature</button>
     <button @click="humidity = !humidity">Humidity</button>
-    <button @click="timePosition += 1">&lt;</button>
-    <button @click="timePosition -= 1" :disabled="timePosition <= 1">&gt;</button>
+    <button @click="previousTimePosition">&lt;</button>
+    <button @click="nextTimePosition" :disabled="timePosition <= 1">&gt;</button>
     <button @click="getLogs">Refesh</button>
-    <Chart :chartType=logType :chartData=chartData :temperature=temperature :humidity=humidity />
+    <Chart :chartType=logType :logs=logs :temperature=temperature :humidity=humidity />
     <table>
       <thead>
         <tr>
           <th>time</th>
+          <th colspan="3">temperatuur</th>
+          <th colspan="3">Humidity</th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>min</th>
+          <th>max</th>
+          <th>avg</th>
           <th>min</th>
           <th>max</th>
           <th>avg</th>
@@ -29,6 +37,9 @@
           <td>{{ log.min_temperature }}</td>
           <td>{{ log.max_temperature }}</td>
           <td>{{ log.avg_temperature }}</td>
+          <td>{{ log.min_humidity }}</td>
+          <td>{{ log.max_humidity }}</td>
+          <td>{{ log.avg_humidity }}</td>
         </tr>
       </tbody>
     </table>
@@ -49,34 +60,36 @@ export default {
   data: function() {
     return {
       temperature: true,
-      humidity: false,
+      humidity: true,
       logs: [],
       logType: 'hour',
       timeUnit: 'minute',
       timePosition: 1,
       time: 1000 * 60 * 60,
-      startDate: new Date(),
+      minTemperature: 0,
+      maxTemperature: 0
     }
   },
   methods: {
     getLogs: async function() {
+      let startDate = new Date()
+      startDate.setTime(startDate.getTime() - this.time * this.timePosition)
       let url = 'http://localhost:5000/frontend/spaces/' + this.space_id + '/log/' + this.timeUnit
-      if (this.startDate) {
-        url += '/' + Math.round(this.startDate.getTime() / 1000)
-      }
+      url += '/' + Math.round(startDate.getTime() / 1000)
       let response = await fetch(url)
       const object = await response.json()
       this.logs = object.logs
     },
-    timeKeydown(e) {
-      let number = /[0-9]/.test(e.key)
-      if (!number && e.key != 'ArrowLeft' && e.key != 'ArrowRight' && e.key != 'Backspace') {
-        e.preventDefault()
-      }
+    nextTimePosition() {
+      this.timePosition -= 1
+      this.getLogs()
+    },
+    previousTimePosition() {
+      this.timePosition += 1
+      this.getLogs()
     }
   },
   created: function(){
-    this.startDate.setTime(new Date().getTime() - this.time * this.timePosition)
     this.getLogs()
   },
   watch: {
@@ -102,27 +115,6 @@ export default {
         this.timeUnit = 'day'
       }
       this.getLogs()
-    },
-    timePosition: function() {
-      this.startDate.setTime(new Date().getTime() - this.time * this.timePosition)
-      this.getLogs()
-    }
-  },
-  computed: {
-    chartData: function() {
-      let data = []
-      for (let log of this.logs) {
-        data.push({
-          date: Date.parse(log.date_time),
-          min_temperature: log.min_temperature,
-          max_temperature: log.max_temperature,
-          avg_temperature: log.avg_temperature,
-          min_humidity: log.min_humidity,
-          max_humidity: log.max_humidity,
-          avg_humidity: log.avg_humidity,
-        })
-      }
-      return data
     }
   }
 }

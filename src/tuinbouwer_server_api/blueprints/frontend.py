@@ -99,17 +99,23 @@ def spaces_log_hour(space_id, timestamp=None):
     }
 
 @frontend.route('/spaces/<int:space_id>/log/minute')
-@frontend.route('/spaces/<int:space_id>/log/minute/<int:timestamp>')
-def spaces_log_minute(space_id, timestamp=None):
+@frontend.route('/spaces/<int:space_id>/log/minute/<int:start_timestamp>')
+@frontend.route('/spaces/<int:space_id>/log/minute/<int:start_timestamp>/<int:end_timestamp>')
+def spaces_log_minute(space_id, start_timestamp=None, end_timestamp=None):
     """Get log of last hour from space"""
     space = models.Space.query.get(space_id)
-    if timestamp:
-        date_time = datetime.fromtimestamp(timestamp)
+    if start_timestamp:
+        start_date_time = datetime.fromtimestamp(start_timestamp)
     else:
-        date_time = datetime.now() - timedelta(hours=1)
+        start_date_time = datetime.now() - timedelta(hours=1)
+    if end_timestamp:
+        end_date_time = datetime.fromtimestamp(start_timestamp)
+    else:
+        end_date_time = datetime.now()
     minute_logs = models.MinuteLog.query.order_by(models.MinuteLog.date_time.desc()).filter( \
         models.MinuteLog.space_id == space.id,
-        models.MinuteLog.date_time > date_time,
+        models.MinuteLog.date_time > start_date_time,
+        models.MinuteLog.date_time < end_date_time,
     ).all()
     logs = []
     for log in minute_logs:

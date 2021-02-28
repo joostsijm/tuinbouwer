@@ -8,9 +8,9 @@ from flask import Blueprint, abort, request
 from tuinbouwer_server_api import models, functions
 
 
-frontend = Blueprint('frontend', __name__, url_prefix='/frontend')
+blueprint = Blueprint('api_frontend', __name__, url_prefix='/api/frontend')
 
-@frontend.route('/spaces')
+@blueprint.route('/spaces')
 def spaces():
     """Get spaces"""
     spaces = models.Space.query.all()
@@ -21,7 +21,7 @@ def spaces():
         }
     return spaces_dict
 
-@frontend.route('/spaces/overview')
+@blueprint.route('/spaces/overview')
 def spaces_overview():
     """Get spaces overview"""
     spaces = models.Space.query.all()
@@ -38,8 +38,8 @@ def spaces_overview():
         }
     return spaces_dict
 
-@frontend.route('/spaces/<int:space_id>/log/day')
-@frontend.route('/spaces/<int:space_id>/log/day/<int:timestamp>')
+@blueprint.route('/spaces/<int:space_id>/log/day')
+@blueprint.route('/spaces/<int:space_id>/log/day/<int:timestamp>')
 def spaces_log_day(space_id, timestamp=None):
     """Get day logs from space"""
     space = models.Space.query.get(space_id)
@@ -68,8 +68,8 @@ def spaces_log_day(space_id, timestamp=None):
         'logs': logs,
     }
 
-@frontend.route('/spaces/<int:space_id>/log/hour')
-@frontend.route('/spaces/<int:space_id>/log/hour/<int:timestamp>')
+@blueprint.route('/spaces/<int:space_id>/log/hour')
+@blueprint.route('/spaces/<int:space_id>/log/hour/<int:timestamp>')
 def spaces_log_hour(space_id, timestamp=None):
     """Get hour logs from space"""
     space = models.Space.query.get(space_id)
@@ -98,9 +98,9 @@ def spaces_log_hour(space_id, timestamp=None):
         'logs': logs,
     }
 
-@frontend.route('/spaces/<int:space_id>/log/minute')
-@frontend.route('/spaces/<int:space_id>/log/minute/<int:start_timestamp>')
-@frontend.route('/spaces/<int:space_id>/log/minute/<int:start_timestamp>/<int:end_timestamp>')
+@blueprint.route('/spaces/<int:space_id>/log/minute')
+@blueprint.route('/spaces/<int:space_id>/log/minute/<int:start_timestamp>')
+@blueprint.route('/spaces/<int:space_id>/log/minute/<int:start_timestamp>/<int:end_timestamp>')
 def spaces_log_minute(space_id, start_timestamp=None, end_timestamp=None):
     """Get log of last hour from space"""
     space = models.Space.query.get(space_id)

@@ -7,7 +7,7 @@ from flask import Flask, json
 from dotenv import load_dotenv
 from flask_cors import CORS
 
-from tuinbouwer_server_api.blueprints import sensor_api, frontend
+from tuinbouwer_server_api.blueprints import website, api
 
 
 load_dotenv()
@@ -58,7 +58,12 @@ def create_app(test_config=None):
     # CORS
     CORS(app, resources={r'/*': {'origins': '*'}})
 
-    app.register_blueprint(sensor_api.sensor_api)
-    app.register_blueprint(frontend.frontend)
+    # Website
+    app.register_blueprint(website.frontend.blueprint)
+    
+    # API
+    app.register_blueprint(api.sensor.blueprint)
+    app.register_blueprint(api.frontend.blueprint)
+
 
     return app

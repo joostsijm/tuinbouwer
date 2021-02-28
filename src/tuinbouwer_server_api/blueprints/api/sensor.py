@@ -8,9 +8,9 @@ from flask import Blueprint, abort, request
 from tuinbouwer_server_api import models, functions
 
 
-sensor_api = Blueprint('sensor_api', __name__, url_prefix='/sensor_api/v1')
+blueprint = Blueprint('api_sensor', __name__, url_prefix='/api/sensor/v1')
 
-@sensor_api.route('/', methods=(['GET', 'POST']))
+@blueprint.route('/', methods=(['GET', 'POST']))
 def get_sensor_log():
     """Route to POST sensor data"""
     if request.method == 'GET':
@@ -29,7 +29,7 @@ def get_sensor_log():
         return "IntegrityError, make sure you have the json data:\n" + \
             "temperature, humidity, power, space_id\n" + str(sensor_log.to_dict()), 409
 
-@sensor_api.errorhandler(404)
+@blueprint.errorhandler(404)
 def page_not_found(error):
     """Handle 404 errors"""
     return abort(404)

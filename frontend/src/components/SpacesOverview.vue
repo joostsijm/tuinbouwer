@@ -23,7 +23,7 @@ export default {
     }
   },
   created: async function(){
-    const response = await fetch("http://localhost:5000/api/frontend/spaces/overview")
+    const response = await fetch("http://api.tuinbouwer.ga/frontend/spaces/overview")
     this.spaces = await response.json()
   },
   methods: {

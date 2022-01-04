@@ -18,16 +18,16 @@
     <thead>
       <tr>
         <th>time</th>
-        <th colspan="3">temperatuur</th>
-        <th colspan="3">Humidity</th>
+        <th :colspan="logs.length && logs[0].min_temperature ? '3' : '1'">temperatuur</th>
+        <th :colspan="logs.length && logs[0].min_humidity ? '3' : '1'">Humidity</th>
       </tr>
       <tr>
         <th></th>
-        <th>min</th>
-        <th>max</th>
+        <th v-if="logs.length && logs[0].min_temperature">min</th>
+        <th v-if="logs.length && logs[0].max_temperature">max</th>
         <th>avg</th>
-        <th>min</th>
-        <th>max</th>
+        <th v-if="logs.length && logs[0].min_humidity">min</th>
+        <th v-if="logs.length && logs[0].max_humidity">max</th>
         <th>avg</th>
       </tr>
     </thead>
@@ -37,12 +37,12 @@
       </tr>
       <tr v-for="(log, index) in logs" :key="index">
         <td>{{ log.date_time }}</td>
-        <td>{{ log.min_temperature }}</td>
-        <td>{{ log.max_temperature }}</td>
-        <td>{{ log.avg_temperature }}</td>
-        <td>{{ log.min_humidity }}</td>
-        <td>{{ log.max_humidity }}</td>
-        <td>{{ log.avg_humidity }}</td>
+        <td v-if="log.min_temperature">{{ log.min_temperature }}&#176;c</td>
+        <td v-if="log.max_temperature">{{ log.max_temperature }}&#176;c</td>
+        <td>{{ log.avg_temperature }}&#176;c</td>
+        <td v-if="log.min_humidity">{{ log.min_humidity }}&#37;</td>
+        <td v-if="log.max_humidity">{{ log.max_humidity }}&#37;</td>
+        <td>{{ log.avg_humidity }}&#37;</td>
       </tr>
     </tbody>
   </table>
@@ -172,6 +172,6 @@ export default {
 
 table {
   width: 100%;
-  max-width: 500px;
+  max-width: 800px;
 }
 </style>

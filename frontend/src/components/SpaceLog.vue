@@ -7,10 +7,11 @@
         <option value="week">week</option>
         <option value="month">month</option>
       </select>
-      <div @click="temperature = !temperature">Temperature</div>
-      <div @click="humidity = !humidity">Humidity</div>
-      <div @click="previousTimePosition">&lt;</div>
-      <div @click="nextTimePosition" :disabled="timePosition <= 1">&gt;</div>
+      <div @click="nextTimePosition" :disabled="timePosition <= 1">&minus;</div>
+      <span>{{ timePosition }}</span>
+      <div @click="previousTimePosition">&plus;</div>
+      <div @click="temperature = !temperature" :class="{ 'active_button' : temperature }">Temperature</div>
+      <div @click="humidity = !humidity" :class="{ 'active_button' : humidity }">Humidity</div>
       <div @click="getLogs">Refesh</div>
     </div>
     <Chart :chartType=logType :logs=logs :temperature=temperature :humidity=humidity />
@@ -130,15 +131,36 @@ export default {
   display: flex;
 }
 
+.controls span,
+.controls div,
+.controls select
+{
+  margin: 0.1em;
+}
+
+.controls span,
+.controls div 
+{
+  padding: 0.5em;
+  margin: 0.1em;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
 .controls div
 {
   cursor: pointer;
-  padding: 0.2em;
-  margin: 0.1em;
-  background: #426cf5;
+  background: var(--primary-color);
   color: #fff;
   border-radius: 2px;
-  font-family: sans-serif;
+}
+
+.controls div.active_button
+{
+  background: #fff;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
 }
 
 table {

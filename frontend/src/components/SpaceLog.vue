@@ -1,15 +1,15 @@
 <template>
   <div>
     <div class="controls">
+      <div @click="nextTimePosition" :disabled="timePosition <= 1">&minus;</div>
+      <span>{{ timePosition }}</span>
+      <div @click="previousTimePosition">&plus;</div>
       <select name="SelectLogType" @change="logType = $event.target.value" v-model="selected">
         <option value="hour" :selected="true">Hour</option>
         <option value="day">Day</option>
         <option value="week">week</option>
         <option value="month">month</option>
       </select>
-      <div @click="nextTimePosition" :disabled="timePosition <= 1">&minus;</div>
-      <span>{{ timePosition }}</span>
-      <div @click="previousTimePosition">&plus;</div>
       <div @click="temperature = !temperature" :class="{ 'active_button' : temperature }">Temperature</div>
       <div @click="humidity = !humidity" :class="{ 'active_button' : humidity }">Humidity</div>
       <div @click="getLogs">Refesh</div>
@@ -139,27 +139,35 @@ export default {
 }
 
 .controls span,
-.controls div 
+.controls select,
+.controls div
 {
   padding: 0.5em;
   margin: 0.1em;
   font-size: 0.9em;
   font-weight: bold;
   text-transform: uppercase;
+  border-radius: 2px;
+  border: 2px solid var(--primary-color);
 }
 
-.controls div
+.controls select:focus
+{
+  outline: none;
+}
+
+.controls div,
+.controls select
 {
   cursor: pointer;
   background: var(--primary-color);
   color: #fff;
-  border-radius: 2px;
 }
 
+.controls span,
 .controls div.active_button
 {
   background: #fff;
-  border: 2px solid var(--primary-color);
   color: var(--primary-color);
 }
 

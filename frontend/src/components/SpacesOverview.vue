@@ -46,6 +46,7 @@ export default {
   margin: 0.2em;
   padding: 0.4em;
   background-color: lightgray;
+  cursor: pointer;
 }
 
 .list .list_item h2

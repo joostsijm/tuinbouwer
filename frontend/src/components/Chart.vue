@@ -1,11 +1,8 @@
 <template>
-  <h3>Chart |
-    <span>{{ chartType }} ago | </span>
-    <span>{{ logs.length }} items | </span>
-    <span v-if="temperature">Temperature | </span>
-    <span v-if="humidity">Humidity</span>
-  </h3>
-  <div id="chart"></div>
+  <div class="container">
+    <h3>{{ logs.length }} items</h3>
+    <div id="chart"></div>
+  </div>
 </template>
 
 <script>
@@ -206,6 +203,10 @@ export default {
 </script>
 
 <style scoped>
+.container
+{
+  margin: 0.5em;
+}
 #chart {
   width: 100%;
   height: 500px;

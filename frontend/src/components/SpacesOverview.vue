@@ -3,12 +3,28 @@
     <div v-if="spaces.length == 0">Loading...</div >
     <div v-for="(space, index) in spaces" :key="index" v-on:click="selectedSpace(index)" class="list_item">
       <h2>{{ space.name }}</h2>
-      <div class="details">
-        <span>min: {{ space.min_temperature }}</span>
-        <span>max: {{ space.max_temperature }}</span>
-        <span>avg: {{ space.avg_temperature }}</span>
-      </div>
-      <div>update: {{ space.date_time }}</div>
+      <table>
+        <thead>
+          <tr>
+            <th>avg</th>
+            <th>min</th>
+            <th>max</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ space.avg_temperature }}&#176;c</td>
+            <td>{{ space.min_temperature }}&#176;c</td>
+            <td>{{ space.max_temperature }}&#176;c</td>
+          </tr>
+          <tr>
+            <td>{{ space.avg_humidity }}&#37;</td>
+            <td>{{ space.min_humidity }}&#37;</td>
+            <td>{{ space.max_humidity }}&#37;</td>
+          </tr>
+        </tbody>
+      </table>
+      <div>{{ space.date_time }}</div>
     </div>
   </div>
 </template>
@@ -75,13 +91,17 @@ export default {
   margin: 0.2em 0;
 }
 
-.list .list_item .details
+.list_item table
 {
-  display: flex;
+  width: 100%;
 }
 
-.list .list_item .details span:not(:first-child)
+.list_item table td,
+.list_item table th
 {
-  padding: 0 0.5em;
+  text-align: left;
+  padding: 0.1em 0;
+  width: calc(100% / 3);
 }
+
 </style>

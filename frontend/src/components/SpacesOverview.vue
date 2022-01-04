@@ -38,16 +38,37 @@ export default {
 .list
 {
   display: flex;
-  margin-bottom: 0.5em;
+  margin: 0.5em;
 }
 
 .list .list_item
 {
   margin: 0.2em;
   padding: 0.4em;
-  background-color: lightgray;
+  background-color: var(--primary-color);
+  color: #fff;
   cursor: pointer;
+  border-radius: 2px;
+  width: calc(100% / 3);
 }
+
+@media (max-width: 800px) {
+  .list .list_item
+  {
+    width: 50%
+  }
+}
+
+.list .list_item:first-child
+{
+  margin-left: 0;
+}
+
+.list .list_item:last-child
+{
+  margin-right: 0;
+}
+
 
 .list .list_item h2
 {

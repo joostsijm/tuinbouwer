@@ -45,7 +45,14 @@ export default {
 <style scoped>
 header
 {
-  display: flex
+  display: flex;
+  background: var(--secondary-color);
+}
+
+h1
+{
+  margin-left: 10px;
+  color: #fff;
 }
 
 header .right
@@ -67,7 +74,7 @@ header .right div
 header div a,
 header div span
 {
-  color: #000;
+  color: #fff;
   text-decoration: none;
   cursor: pointer;
 }

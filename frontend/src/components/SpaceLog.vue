@@ -1,53 +1,51 @@
 <template>
-  <div>
-    <div class="controls">
-      <div @click="nextTimePosition" :disabled="timePosition <= 1">&minus;</div>
-      <span>{{ timePosition }}</span>
-      <div @click="previousTimePosition">&plus;</div>
-      <select name="SelectLogType" @change="logType = $event.target.value" v-model="selected">
-        <option value="hour" :selected="true">Hour</option>
-        <option value="day">Day</option>
-        <option value="week">week</option>
-        <option value="month">month</option>
-      </select>
-      <div @click="temperature = !temperature" :class="{ 'active_button' : temperature }">Temperature</div>
-      <div @click="humidity = !humidity" :class="{ 'active_button' : humidity }">Humidity</div>
-      <div @click="getLogs">Refesh</div>
-    </div>
-    <Chart :chartType=logType :logs=logs :temperature=temperature :humidity=humidity />
-    <table>
-      <thead>
-        <tr>
-          <th>time</th>
-          <th colspan="3">temperatuur</th>
-          <th colspan="3">Humidity</th>
-        </tr>
-        <tr>
-          <th></th>
-          <th>min</th>
-          <th>max</th>
-          <th>avg</th>
-          <th>min</th>
-          <th>max</th>
-          <th>avg</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-if="logs.length == 0">
-          <td>Loading...</td>
-        </tr>
-        <tr v-for="(log, index) in logs" :key="index">
-          <td>{{ log.date_time }}</td>
-          <td>{{ log.min_temperature }}</td>
-          <td>{{ log.max_temperature }}</td>
-          <td>{{ log.avg_temperature }}</td>
-          <td>{{ log.min_humidity }}</td>
-          <td>{{ log.max_humidity }}</td>
-          <td>{{ log.avg_humidity }}</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="controls">
+    <div @click="nextTimePosition" :disabled="timePosition <= 1">&minus;</div>
+    <span>{{ timePosition }}</span>
+    <div @click="previousTimePosition">&plus;</div>
+    <select name="SelectLogType" @change="logType = $event.target.value" v-model="selected">
+      <option value="hour" :selected="true">Hour</option>
+      <option value="day">Day</option>
+      <option value="week">week</option>
+      <option value="month">month</option>
+    </select>
+    <div @click="temperature = !temperature" :class="{ 'active_button' : temperature }">Temperature</div>
+    <div @click="humidity = !humidity" :class="{ 'active_button' : humidity }">Humidity</div>
+    <div @click="getLogs">Refesh</div>
   </div>
+  <Chart :chartType=logType :logs=logs :temperature=temperature :humidity=humidity />
+  <table>
+    <thead>
+      <tr>
+        <th>time</th>
+        <th colspan="3">temperatuur</th>
+        <th colspan="3">Humidity</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th>min</th>
+        <th>max</th>
+        <th>avg</th>
+        <th>min</th>
+        <th>max</th>
+        <th>avg</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-if="logs.length == 0">
+        <td>Loading...</td>
+      </tr>
+      <tr v-for="(log, index) in logs" :key="index">
+        <td>{{ log.date_time }}</td>
+        <td>{{ log.min_temperature }}</td>
+        <td>{{ log.max_temperature }}</td>
+        <td>{{ log.avg_temperature }}</td>
+        <td>{{ log.min_humidity }}</td>
+        <td>{{ log.max_humidity }}</td>
+        <td>{{ log.avg_humidity }}</td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script>
@@ -128,6 +126,7 @@ export default {
 <style scoped>
 .controls
 {
+  margin: 0.5em;
   display: flex;
 }
 

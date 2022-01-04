@@ -8,9 +8,10 @@ from flask import Blueprint, abort, request
 from tuinbouwer_server_api import models, functions
 
 
-blueprint = Blueprint('api_sensor', __name__, url_prefix='/api/sensor/v1')
+blueprint = Blueprint('api_sensor', __name__, url_prefix='')
 
-@blueprint.route('/', methods=(['GET', 'POST']))
+@blueprint.route('/api/sensor/v1', methods=(['GET', 'POST']))
+@blueprint.route('/sensor_api/v1/', methods=(['GET', 'POST']))
 def get_sensor_log():
     """Route to POST sensor data"""
     if request.method == 'GET':

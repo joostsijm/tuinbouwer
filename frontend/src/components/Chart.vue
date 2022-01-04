@@ -5,8 +5,6 @@
     <span v-if="temperature">Temperature | </span>
     <span v-if="humidity">Humidity</span>
   </h3>
-    
-    
   <div id="chart"></div>
 </template>
 

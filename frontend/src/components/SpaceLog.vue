@@ -1,15 +1,18 @@
 <template>
   <div>
-    <button @click="logType = 'hour'" :disabled="logType == 'hour'">Hour</button>
-    <button @click="logType = 'day'" :disabled="logType == 'day'">Day</button>
-    <button @click="logType = 'week'" :disabled="logType == 'week'">week</button>
-    <button @click="logType = 'month'" :disabled="logType == 'month'">month</button>
-    <br>
-    <button @click="temperature = !temperature">Temperature</button>
-    <button @click="humidity = !humidity">Humidity</button>
-    <button @click="previousTimePosition">&lt;</button>
-    <button @click="nextTimePosition" :disabled="timePosition <= 1">&gt;</button>
-    <button @click="getLogs">Refesh</button>
+    <div class="controls">
+      <select name="SelectLogType" @change="logType = $event.target.value" v-model="selected">
+        <option value="hour" :selected="true">Hour</option>
+        <option value="day">Day</option>
+        <option value="week">week</option>
+        <option value="month">month</option>
+      </select>
+      <div @click="temperature = !temperature">Temperature</div>
+      <div @click="humidity = !humidity">Humidity</div>
+      <div @click="previousTimePosition">&lt;</div>
+      <div @click="nextTimePosition" :disabled="timePosition <= 1">&gt;</div>
+      <div @click="getLogs">Refesh</div>
+    </div>
     <Chart :chartType=logType :logs=logs :temperature=temperature :humidity=humidity />
     <table>
       <thead>
@@ -67,7 +70,8 @@ export default {
       timePosition: 1,
       time: 1000 * 60 * 60,
       minTemperature: 0,
-      maxTemperature: 0
+      maxTemperature: 0,
+      selected: "hour"
     }
   },
   methods: {
@@ -121,6 +125,22 @@ export default {
 </script>
 
 <style scoped>
+.controls
+{
+  display: flex;
+}
+
+.controls div
+{
+  cursor: pointer;
+  padding: 0.2em;
+  margin: 0.1em;
+  background: #426cf5;
+  color: #fff;
+  border-radius: 2px;
+  font-family: sans-serif;
+}
+
 table {
   width: 100%;
   max-width: 500px;

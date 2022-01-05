@@ -27,15 +27,19 @@ def spaces_overview():
     spaces = models.Space.query.all()
     spaces_dict = {}
     for space in spaces:
-        log = models.HourLog.query.order_by(models.HourLog.date_time.desc()).first()
         spaces_dict[space.id] = {
             'id': space.id,
-            'name': space.name,
-            'min_temperature': log.min_temperature,
-            'max_temperature': log.max_temperature,
-            'avg_temperature': log.temperature,
-            'date_time': log.date_time,
+            'name': space.name
         }
+        hour_log = space.hour_logs.order_by(models.HourLog.date_time.desc()).first()
+        if hour_log:
+            spaces_dict[space.id]['min_temperature'] = hour_log.min_temperature
+            spaces_dict[space.id]['max_temperature'] = hour_log.max_temperature
+            spaces_dict[space.id]['avg_temperature'] = hour_log.temperature
+            spaces_dict[space.id]['min_humidity'] = hour_log.min_humidity
+            spaces_dict[space.id]['max_humidity'] = hour_log.max_humidity
+            spaces_dict[space.id]['avg_humidity'] = hour_log.humidity
+            spaces_dict[space.id]['date_time'] = hour_log.date_time
     return spaces_dict
 
 @blueprint.route('/spaces/<int:space_id>/log/day')

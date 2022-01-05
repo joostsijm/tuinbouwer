@@ -30,6 +30,8 @@ class Space(db.Model):
         backref=db.backref('space', lazy=True))
     sensor_logs = db.relationship('SensorLog', lazy='dynamic',
         backref=db.backref('space', lazy=True))
+    hour_logs = db.relationship('HourLog', lazy='dynamic',
+        backref=db.backref('space_hour_log', lazy=True))
 
 
 class Plant(db.Model):

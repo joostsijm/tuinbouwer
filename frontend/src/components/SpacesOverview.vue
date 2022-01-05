@@ -55,6 +55,7 @@ export default {
 {
   display: flex;
   margin: 0.5em;
+  flex-wrap: wrap;
 }
 
 .list .list_item
@@ -65,26 +66,32 @@ export default {
   color: #fff;
   cursor: pointer;
   border-radius: 2px;
-  width: calc(100% / 3);
+  width: 100%;
 }
 
-@media (max-width: 800px) {
+@media (min-width: 500px) {
   .list .list_item
   {
-    width: 50%
+    width: 50%;
+  }
+
+  .list .list_item:first-child
+  {
+    margin-left: 0;
+  }
+
+  .list .list_item:last-child
+  {
+    margin-right: 0;
   }
 }
 
-.list .list_item:first-child
-{
-  margin-left: 0;
+@media (min-width: 800px) {
+  .list .list_item
+  {
+    width: calc(100% / 3);
+  }
 }
-
-.list .list_item:last-child
-{
-  margin-right: 0;
-}
-
 
 .list .list_item h2
 {

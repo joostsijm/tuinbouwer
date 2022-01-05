@@ -19,15 +19,17 @@ export default {
   },
   data: function() {
     return {
-      minTemperature: -100,
-      maxTemperature: 100,
+      minTemperature: -1000,
+      maxTemperature: 1000,
+      minHumidity: -1000,
+      maxHumidity: 1000,
     }
   },
   mounted() {
-    this.generateArc()
+    this.generateChart()
   },
   methods: {
-    generateArc() {
+    generateChart() {
       let chart = am4core.create('chart', am4charts.XYChart)
 
       chart.paddingRight = 20
@@ -69,6 +71,8 @@ export default {
       this.humidityAxis.renderer.minWidth = 35
       this.humidityAxis.renderer.minGridDistance = 40;
       this.humidityAxis.renderer.opposite = true;
+      this.humidityAxis.min = parseFloat(this.minHumidity) - 1;
+      this.humidityAxis.max = parseFloat(this.maxHumidity) + 1;
 
       chart.cursor = new am4charts.XYCursor()
       this.chart = chart
@@ -99,6 +103,7 @@ export default {
       this.minHumiditySeries.tooltipText = '{valueY.value}'
       this.minHumiditySeries.stroke = 'blue'
       this.minHumiditySeries.yAxis = this.humidityAxis;
+      this.minHumiditySeries.strokeDasharray = "10,3";
 
       this.maxHumiditySeries = this.chart.series.push(new am4charts.LineSeries())
       this.maxHumiditySeries.dataFields.dateX = 'date'
@@ -106,6 +111,7 @@ export default {
       this.maxHumiditySeries.tooltipText = '{valueY.value}'
       this.maxHumiditySeries.stroke = 'red'
       this.maxHumiditySeries.yAxis = this.humidityAxis;
+      this.maxHumiditySeries.strokeDasharray = "10,3";
 
       this.avgHumiditySeries = this.chart.series.push(new am4charts.LineSeries())
       this.avgHumiditySeries.dataFields.dateX = 'date'
@@ -113,17 +119,37 @@ export default {
       this.avgHumiditySeries.tooltipText = '{valueY.value}'
       this.avgHumiditySeries.stroke = 'black'
       this.avgHumiditySeries.yAxis = this.humidityAxis;
+      this.avgHumiditySeries.strokeDasharray = "10,3";
     },
     chartData() {
       let data = []
-      this.minTemperature = 100
-      this.maxTemperature = -100
+      this.minTemperature = 1000
+      this.maxTemperature = -1000
+      this.minHumidity = 1000
+      this.maxHumidity = -1000
+      var has_min_max = (this.logs[0].min_humidity)
       for (let log of this.logs) {
-        if (this.minTemperature > log.avg_temperature) {
-          this.minTemperature = log.avg_temperature
+        var logMinHumidity = log.avg_humidity
+        var logMaxHumidity = log.avg_humidity
+        var logMinTemperature = log.avg_temperature
+        var logMaxTemperature = log.avg_temperature
+        if (has_min_max) {
+          logMinHumidity = log.min_humidity
+          logMaxHumidity = log.max_humidity
+          logMinTemperature = log.min_temperature
+          logMaxTemperature = log.max_temperature
         }
-        if (this.maxTemperature < log.avg_temperature) {
-          this.maxTemperature = log.avg_temperature
+        if (this.minHumidity > logMinHumidity) {
+          this.minHumidity = logMinHumidity
+        }
+        if (this.maxHumidity < logMaxHumidity) {
+          this.maxHumidity = logMaxHumidity
+        }
+        if (this.minTemperature > logMinTemperature) {
+          this.minTemperature = logMinTemperature
+        }
+        if (this.maxTemperature < logMaxTemperature) {
+          this.maxTemperature = logMaxTemperature
         }
         data.push({
           date: Date.parse(log.date_time),
@@ -141,7 +167,7 @@ export default {
   watch: { 
     logs: function() {
       this.chart.dispose()
-      this.generateArc()
+      this.generateChart()
       this.generateTemperatureLineSeries()
       this.generateHumidityLineSeries()
     },

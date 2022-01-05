@@ -1,8 +1,8 @@
 <template>
   <div class="controls">
-    <div @click="nextTimePosition" :disabled="timePosition <= 1">&minus;</div>
+    <div @click="decrementTime" :disabled="timePosition <= 1">&minus;</div>
     <span>{{ timePosition }}</span>
-    <div @click="previousTimePosition">&plus;</div>
+    <div @click="incrementTime">&plus;</div>
     <select name="SelectLogType" @change="logType = $event.target.value" v-model="selected">
       <option value="hour" :selected="true">Hour</option>
       <option value="day">Day</option>
@@ -83,11 +83,11 @@ export default {
       const object = await response.json()
       this.logs = object.logs
     },
-    nextTimePosition() {
+    decrementTime() {
       this.timePosition -= 1
       this.getLogs()
     },
-    previousTimePosition() {
+    incrementTime() {
       this.timePosition += 1
       this.getLogs()
     }
@@ -128,6 +128,7 @@ export default {
 {
   margin: 0.5em;
   display: flex;
+  flex-wrap: wrap;
 }
 
 .controls span,

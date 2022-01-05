@@ -19,10 +19,10 @@ export default {
   },
   data: function() {
     return {
-      minTemperature: -1000,
-      maxTemperature: 1000,
-      minHumidity: -1000,
-      maxHumidity: 1000,
+      minTemperature: 1000,
+      maxTemperature: -1000,
+      minHumidity: 1000,
+      maxHumidity: -1000,
     }
   },
   mounted() {
@@ -127,29 +127,35 @@ export default {
       this.maxTemperature = -1000
       this.minHumidity = 1000
       this.maxHumidity = -1000
-      var has_min_max = (this.logs[0].min_humidity)
+      var has_min_max = (this.logs.length > 0 && this.logs.find(x=>x!==undefined).min_humidity)
+      var logMinHumidity = 0
+      var logMaxHumidity = 0
+      var logMinTemperature = 0
+      var logMaxTemperature = 0
       for (let log of this.logs) {
-        var logMinHumidity = log.avg_humidity
-        var logMaxHumidity = log.avg_humidity
-        var logMinTemperature = log.avg_temperature
-        var logMaxTemperature = log.avg_temperature
         if (has_min_max) {
-          logMinHumidity = log.min_humidity
-          logMaxHumidity = log.max_humidity
           logMinTemperature = log.min_temperature
           logMaxTemperature = log.max_temperature
+          logMinHumidity = log.min_humidity
+          logMaxHumidity = log.max_humidity
         }
-        if (this.minHumidity > logMinHumidity) {
-          this.minHumidity = logMinHumidity
-        }
-        if (this.maxHumidity < logMaxHumidity) {
-          this.maxHumidity = logMaxHumidity
+        else {
+          logMinTemperature = log.avg_temperature
+          logMaxTemperature = log.avg_temperature
+          logMinHumidity = log.avg_humidity
+          logMaxHumidity = log.avg_humidity
         }
         if (this.minTemperature > logMinTemperature) {
           this.minTemperature = logMinTemperature
         }
         if (this.maxTemperature < logMaxTemperature) {
           this.maxTemperature = logMaxTemperature
+        }
+        if (this.minHumidity > logMinHumidity) {
+          this.minHumidity = logMinHumidity
+        }
+        if (this.maxHumidity < logMaxHumidity) {
+          this.maxHumidity = logMaxHumidity
         }
         data.push({
           date: Date.parse(log.date_time),

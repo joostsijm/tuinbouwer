@@ -24,10 +24,15 @@
 
 #include <Arduino.h>
 #include <ESPAsync_WiFiManager.h>
+#include <ESP8266HTTPClient.h>
 #include <AsyncElegantOTA.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 #include <ErriezDHT22.h>
+#include <ArduinoJson.h>
+
+ // Configure ID of the space
+int space_id = 3;
 
 // Set relay pins
 const int RelayHeating = 15;
@@ -53,7 +58,7 @@ DNSServer dnsServer;
 
 WiFiUDP ntpUDP;
 const long utcOffsetInSeconds = 7200;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
+NTPClient timeClient(ntpUDP, F("pool.ntp.org"), utcOffsetInSeconds);
 
 #define DHT22_PIN 2
 DHT22 dht22 = DHT22(DHT22_PIN);
@@ -67,7 +72,7 @@ bool has_not_run = true;
 int8_t last_second = 0;
 
 int getHours24(int hours) {
-    String hoursStr = hours < 10 ? "0" + String(hours) : String(hours);
+    String hoursStr = hours < 10 ? F("0") + String(hours) : String(hours);
     return hoursStr.toInt();
 }
 
@@ -111,7 +116,8 @@ void control_humidity(int16_t humidity)
             {
                 power_dehumidifier = HIGH;
             }
-            else if (humidity <= goal_humidity_value - goal_humidity_offset) {
+            else if (humidity <= goal_humidity_value - goal_humidity_offset)
+            {
                 power_ventilation = LOW;
             }
         }
@@ -124,7 +130,7 @@ void control_lighting()
     power_lighting = (hour >= 1 and hour < 7) ? LOW : HIGH;
 }
 
-String format_climate( int16_t temperature, int16_t humidity )
+String format_climate(int16_t temperature, int16_t humidity)
 {
     String climate_str = F("Temperature: ");
     if (temperature == ~0) {
@@ -144,13 +150,6 @@ String format_climate( int16_t temperature, int16_t humidity )
     return climate_str;
 }
 
-void print_climate(int16_t temperature, int16_t humidity)
-{
-    Serial.print(timeClient.getFormattedTime());
-    Serial.print(F(" "));
-    Serial.println(format_climate(temperature, humidity));
-}
-
 String format_controls() 
 {
     return F("Heating: ") + String(power_heating)
@@ -159,11 +158,71 @@ String format_controls()
         + F(" Ventilation: ") + power_ventilation;
 }
 
-void print_controls()
+String format_all(int16_t temperature, int16_t humidity)
 {
-    Serial.print(timeClient.getFormattedTime());
-    Serial.print(F(" "));
-    Serial.println(format_controls());
+    return timeClient.getFormattedTime() 
+        + F(" ") + format_climate(temperature, humidity)
+        + F(" ") + format_controls();
+}
+
+void print_status(int16_t temperature, int16_t humidity)
+{
+    Serial.println(format_all(temperature, humidity));
+}
+
+String format_json(int16_t temperature, int16_t humidity) {
+    StaticJsonDocument<200> json_document;
+    json_document[F("space_id")] = space_id;
+    json_document[F("temperature")] = String(temperature / 10) + F(".") + String(temperature % 10);
+    json_document[F("humidity")] = String(humidity / 10) + F(".") + String(humidity % 10);
+    json_document[F("power")] = F("0");
+
+    String json_string;
+    serializeJson(json_document, json_string);
+    return json_string;
+}
+
+void send_data(String json_string) {
+    if (WiFi.status() == WL_CONNECTED) {
+        WiFiClient client;
+        HTTPClient http;
+
+        http.begin(client, F("http://api.tuinbouwer.ga/sensor_api/v1/"));
+        http.addHeader(F("Content-Type"), F("application/json"));
+
+        int httpCode = http.POST(json_string);
+        Serial.print(F("Send data status code: "));
+        Serial.println(httpCode);
+
+        http.end();
+    } else {
+        Serial.println(F("Error in WiFi connection"));
+    }
+}
+
+void main_method(bool send_values) {
+    if (!dht22.available()) {
+        Serial.println(F("DHT22 not available."));
+    }
+    int16_t temperature = dht22.readTemperature();
+    int16_t humidity = dht22.readHumidity();
+    TEMPERATURE = temperature;
+    HUMIDITY = humidity;
+
+    control_temperature(temperature);
+    control_lighting();
+    control_humidity(humidity);
+    print_status(temperature, humidity);
+
+    digitalWrite(RelayHeating, power_heating);
+    digitalWrite(RelayLighting, power_lighting);
+    digitalWrite(RelayVentilation, power_ventilation);
+    digitalWrite(RelayDehumidifier, power_dehumidifier);
+
+    if (send_values and temperature != ~0 and humidity != ~0) {
+        String json_string  = format_json(temperature, humidity);
+        send_data(json_string);
+    }
 }
 
 void setup()
@@ -190,44 +249,23 @@ void setup()
     timeClient.update();
 
     webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(200, "text/plain", timeClient.getFormattedTime() 
-                + F(" ")
-                + format_climate(TEMPERATURE, HUMIDITY)
-                + F(" ")
-                + format_controls()
-            );
-    });
+            request->send(200, F("text/plain"), format_all(TEMPERATURE, HUMIDITY));
+        });
+    webServer.on("/json", HTTP_GET, [](AsyncWebServerRequest *request) {
+            request->send(200, F("application/json"), format_json(TEMPERATURE, HUMIDITY));
+        });
 
     AsyncElegantOTA.begin(&webServer);
     webServer.begin();
+
+    main_method(false);
 }
 
 void loop() {
     int current_second = timeClient.getSeconds();
-
     if (current_second == 0 and has_not_run) {
         has_not_run = false;
-        if (dht22.available()) {
-            Serial.println(F("DHT22 not available."));
-        }
-
-        int16_t temperature = dht22.readTemperature();
-        int16_t humidity = dht22.readHumidity();
-        TEMPERATURE = temperature;
-        HUMIDITY = humidity;
-
-        print_climate(temperature, humidity);
-
-        control_temperature(temperature);
-        control_lighting();
-        control_humidity(humidity);
-
-        digitalWrite(RelayHeating, power_heating);
-        digitalWrite(RelayLighting, power_lighting);
-        digitalWrite(RelayVentilation, power_ventilation);
-        digitalWrite(RelayDehumidifier, power_dehumidifier);
-
-        print_controls();
+        main_method(true);
     }
     else if (last_second != current_second and current_second != 0) {
         Serial.println(current_second);

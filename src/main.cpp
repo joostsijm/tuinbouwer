@@ -41,10 +41,20 @@ const int RelayDehumidifier = 12;
 const int RelayVentilation = 14;
 
 // Sent goal 
+const int goal_humidity_value = 50 * 10;
+const int goal_humidity_offset = 10 * 10;
 const int goal_temperature_value = 22 * 10;
 const int goal_temperature_offset = 2 * 10;
-const int goal_humidity_value = 70 * 10;
-const int goal_humidity_offset = 10 * 10;
+const int cycle_time_default = 20 * 60000;
+const int cycle_time_offset = 10 * 60000;
+const int ventilator_percentage_default = 20;
+const int ventilator_percentage_offset = 15;
+const int heater_percentage_default = 20;
+const int heater_percentage_offset = 10;
+
+int cycle_time = cycle_time_default;
+int ventilator_percentage = ventilator_percentage_default;
+int heater_percentage = heater_percentage_default;
 
 // Control status boolean for power
 int power_heating = LOW;
@@ -56,10 +66,12 @@ AsyncWebServer webServer(80);
 
 DNSServer dnsServer;
 
+// NTP time client
 WiFiUDP ntpUDP;
 const long utcOffsetInSeconds = 7200;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
+// DHT22
 #define DHT22_PIN 4
 DHT22 dht22 = DHT22(DHT22_PIN);
 
@@ -67,67 +79,76 @@ DHT22 dht22 = DHT22(DHT22_PIN);
 int16_t TEMPERATURE;
 int16_t HUMIDITY;
 
-unsigned long previousMillis = 0;
-bool has_not_run = true;
+// minute loop
+bool minute_loop_has_run = false;
 int8_t last_second = 0;
 
-int getHours24(int hours) {
-    String hoursStr = hours < 10 ? F("0") + String(hours) : String(hours);
-    return hoursStr.toInt();
-}
+// climate loop control
+unsigned long time_climate_cycle = 0;
+unsigned long time_ventilator_control = ULONG_MAX;
+unsigned long time_heater_control = ULONG_MAX;
 
-void control_temperature(int16_t temperature)
+void set_climate_cycle(int16_t temperature, int16_t humidity)
 {
-    if (temperature != ~0 or (power_heating and temperature >= goal_temperature_value + goal_temperature_offset))
-    {
-        power_heating = LOW;
+    cycle_time = cycle_time_default;
+    ventilator_percentage = ventilator_percentage_default;
+    heater_percentage = heater_percentage_default;
+    if (humidity == ~0 or temperature == ~0 ) {
+        return;
     }
-    else if (not power_heating and temperature <= goal_temperature_value + goal_temperature_offset)
-    {
-        power_heating = HIGH;
-    }
-}
-
-void control_humidity(int16_t humidity)
-{
-    if (humidity == ~0) {
-        power_dehumidifier = LOW;
-        power_ventilation = HIGH;
-    }
-    else
-    {
-        if (not power_ventilation)
-        {
-            if (humidity >= goal_humidity_value + goal_humidity_offset)
-            {
-                power_ventilation = HIGH;
-            }
+    if (humidity >= goal_humidity_value + goal_humidity_offset) {
+        ventilator_percentage += ventilator_percentage_offset;
+        if (temperature >= goal_temperature_value + goal_temperature_offset) {
+            cycle_time += cycle_time_offset;
         }
-        else if (power_dehumidifier)
-        {
-            if (humidity <= goal_humidity_value - goal_humidity_offset)
-            {
-                power_dehumidifier = LOW;
-            }
+        else if (temperature <= goal_temperature_value - goal_temperature_offset) {
+            cycle_time -= cycle_time_offset;
+            heater_percentage += heater_percentage_offset;
         }
-        else
-        {
-            if (humidity >= goal_humidity_value + goal_humidity_offset)
-            {
-                power_dehumidifier = HIGH;
-            }
-            else if (humidity <= goal_humidity_value - goal_humidity_offset)
-            {
-                power_ventilation = LOW;
-            }
+    }
+    else if (humidity <= goal_humidity_value - goal_humidity_offset) {
+        ventilator_percentage = ventilator_percentage - ventilator_percentage_offset;
+        if (temperature >= goal_temperature_value + goal_temperature_offset) {
+            cycle_time += cycle_time_offset;
+        }
+        else if (temperature <= goal_temperature_value - goal_temperature_offset) {
+            cycle_time -= cycle_time_offset;
+            heater_percentage -= heater_percentage_offset;
+        }
+    }
+    else {
+        if (temperature >= goal_temperature_value + goal_temperature_offset) {
+            cycle_time += cycle_time_offset;
+        }
+        else if (temperature <= goal_temperature_value - goal_temperature_offset) {
+            cycle_time -= cycle_time_offset;
         }
     }
 }
 
 void control_lighting()
 {
-    int8_t hour = getHours24(timeClient.getHours());
+    int8_t hour = timeClient.getHours();
+    String hoursStr = hour < 10 ? F("0") + String(hour) : String(hour);
+    hour = hoursStr.toInt();
     power_lighting = (hour >= 1 and hour < 7) ? LOW : HIGH;
+    digitalWrite(RelayLighting, power_lighting);
+}
+
+String format_cycle_time()
+{
+    unsigned long currentMillis = millis();
+    return F("seconds: ") + String(currentMillis / 1000) + F("s")
+        + F(" climate: ") + String((time_climate_cycle - currentMillis) / 1000) + F("/") + String(cycle_time / 1000) + F("s ") 
+        + F(" ventilator: ") + String((time_ventilator_control - currentMillis) / 1000) + F("/") + String((cycle_time / 100 * ventilator_percentage) / 1000) + F("s ") 
+        + F(" heating: ") + String((time_heater_control - currentMillis) / 1000) + F("/") + String((cycle_time / 100 * heater_percentage) / 1000) + F("s") ;
+}
+
+String format_climate_cycle()
+{
+    return F("cycle: ") + String(cycle_time / 1000) + F("s")
+        + F(" ventilator: ") + String(ventilator_percentage) + F("%")
+        + F(" heater: ") + String(heater_percentage) + F("%");
 }
 
 String format_climate(int16_t temperature, int16_t humidity)
@@ -137,8 +158,7 @@ String format_climate(int16_t temperature, int16_t humidity)
         climate_str = climate_str + F("Error");
     }
     else {
-        climate_str = climate_str
-            + String(temperature / 10) + F(".") + String(temperature % 10) + F(" *C");
+        climate_str = climate_str + String(temperature / 10) + F(".") + String(temperature % 10) + F(" *C");
     }
     climate_str = climate_str + F(" Humidity: ");
     if (humidity == ~0) {
@@ -158,19 +178,16 @@ String format_controls()
         + F(" Ventilation: ") + power_ventilation;
 }
 
-String format_all(int16_t temperature, int16_t humidity)
+String format_status(int16_t temperature, int16_t humidity)
 {
     return timeClient.getFormattedTime() 
         + F(" ") + format_climate(temperature, humidity)
-        + F(" ") + format_controls();
+        + F(" ") + format_controls()
+        + F(" ") + format_climate_cycle();
 }
 
-void print_status(int16_t temperature, int16_t humidity)
+String format_sensor_data_json(int16_t temperature, int16_t humidity)
 {
-    Serial.println(format_all(temperature, humidity));
-}
-
-String format_json(int16_t temperature, int16_t humidity) {
     StaticJsonDocument<200> json_document;
     json_document[F("space_id")] = space_id;
     json_document[F("temperature")] = String(temperature / 10) + F(".") + String(temperature % 10);
@@ -182,7 +199,8 @@ String format_json(int16_t temperature, int16_t humidity) {
     return json_string;
 }
 
-void send_data(String json_string) {
+void send_data(String json_string)
+{
     if (WiFi.status() == WL_CONNECTED) {
         WiFiClient client;
         HTTPClient http;
@@ -200,7 +218,8 @@ void send_data(String json_string) {
     }
 }
 
-void main_method(bool send_values) {
+void main_method(bool send_values)
+{
     if (!dht22.available()) {
         Serial.println(F("DHT22 not available."));
     }
@@ -209,18 +228,13 @@ void main_method(bool send_values) {
     TEMPERATURE = temperature;
     HUMIDITY = humidity;
 
-    control_temperature(temperature);
+    // control_temperature(temperature);
+    // control_humidity(humidity);
     control_lighting();
-    control_humidity(humidity);
-    print_status(temperature, humidity);
-
-    digitalWrite(RelayHeating, power_heating);
-    digitalWrite(RelayLighting, power_lighting);
-    digitalWrite(RelayVentilation, power_ventilation);
-    digitalWrite(RelayDehumidifier, power_dehumidifier);
+    Serial.println(format_status(temperature, humidity));
 
     if (send_values and temperature != ~0 and humidity != ~0) {
-        String json_string  = format_json(temperature, humidity);
+        String json_string  = format_sensor_data_json(temperature, humidity);
         send_data(json_string);
     }
 }
@@ -249,10 +263,13 @@ void setup()
     timeClient.update();
 
     webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-            request->send(200, F("text/plain"), format_all(TEMPERATURE, HUMIDITY));
+            request->send(200, F("text/plain"), format_status(TEMPERATURE, HUMIDITY));
+        });
+    webServer.on("/cycle", HTTP_GET, [](AsyncWebServerRequest *request) {
+            request->send(200, F("text/plain"), format_cycle_time());
         });
     webServer.on("/json", HTTP_GET, [](AsyncWebServerRequest *request) {
-            request->send(200, F("application/json"), format_json(TEMPERATURE, HUMIDITY));
+            request->send(200, F("application/json"), format_sensor_data_json(TEMPERATURE, HUMIDITY));
         });
 
     AsyncElegantOTA.begin(&webServer);
@@ -261,15 +278,49 @@ void setup()
     main_method(false);
 }
 
-void loop() {
+void loop()
+{
     int current_second = timeClient.getSeconds();
-    if (current_second == 0 and has_not_run) {
-        has_not_run = false;
+    if (!minute_loop_has_run and current_second == 0) {
+        minute_loop_has_run = true;
         main_method(true);
     }
     else if (last_second != current_second and current_second != 0) {
-        Serial.println(current_second);
+        Serial.print(current_second);
+        Serial.print(F(" "));
+        Serial.println(format_cycle_time());
         last_second = current_second; 
-        has_not_run = true;
+        minute_loop_has_run = false;
+    }
+
+    unsigned long currentMillis = millis();
+    if (currentMillis >= time_ventilator_control) {
+        time_ventilator_control = ULONG_MAX;
+        Serial.println("stop ventilator, start heater");
+
+        power_ventilation = LOW;
+        power_heating = HIGH;
+        digitalWrite(RelayVentilation, power_ventilation);
+        digitalWrite(RelayHeating, power_heating);
+    }
+    else if (currentMillis >= time_heater_control) {
+        time_heater_control = ULONG_MAX;
+
+        Serial.println("stop heater");
+        power_heating = LOW;
+        digitalWrite(RelayHeating, power_heating);
+    }
+    else if (currentMillis >= time_climate_cycle) {
+        Serial.println("start ventilation");
+        int16_t temperature = dht22.readTemperature();
+        int16_t humidity = dht22.readHumidity();
+        set_climate_cycle(temperature, humidity);
+
+        time_ventilator_control = currentMillis + (cycle_time / 100 * ventilator_percentage);
+        time_heater_control = time_ventilator_control + (cycle_time / 100  * heater_percentage);
+        time_climate_cycle = currentMillis + cycle_time;
+
+        power_ventilation = HIGH;
+        digitalWrite(RelayVentilation, power_ventilation);
     }
 }

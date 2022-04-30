@@ -58,9 +58,9 @@ DNSServer dnsServer;
 
 WiFiUDP ntpUDP;
 const long utcOffsetInSeconds = 7200;
-NTPClient timeClient(ntpUDP, F("pool.ntp.org"), utcOffsetInSeconds);
+NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
-#define DHT22_PIN 2
+#define DHT22_PIN 4
 DHT22 dht22 = DHT22(DHT22_PIN);
 
 // Global values

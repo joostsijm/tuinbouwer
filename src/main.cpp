@@ -15,7 +15,7 @@
  * RX  GPIO 3
  * TX  GPIO 1
  * A0  ADC0
- * 
+ *
  *  Async_AutoConnect_ESP8266_minimal.ino
  *  For ESP8266 / ESP32 boards
  *  Built by Khoi Hoang https://github.com/khoih-prog/ESPAsync_WiFiManager
@@ -31,7 +31,7 @@
 #include <ErriezDHT22.h>
 #include <ArduinoJson.h>
 
- // Configure ID of the space
+// Configure ID of the space
 int space_id = 3;
 
 // Set relay pins
@@ -40,7 +40,7 @@ const int RelayLighting = 13;
 const int RelayDehumidifier = 12;
 const int RelayVentilation = 14;
 
-// Sent goal 
+// Sent goal
 const int goal_humidity_value = 50 * 10;
 const int goal_humidity_offset = 10 * 10;
 const int goal_temperature_value = 22 * 10;
@@ -63,8 +63,8 @@ int power_dehumidifier = LOW;
 int power_ventilation = LOW;
 
 AsyncWebServer webServer(80);
-
 DNSServer dnsServer;
+ESPAsync_WiFiManager ESPAsync_wifiManager(&webServer, &dnsServer);
 
 // NTP time client
 WiFiUDP ntpUDP;
@@ -93,34 +93,44 @@ void set_climate_cycle(int16_t temperature, int16_t humidity)
     cycle_time = cycle_time_default;
     ventilator_percentage = ventilator_percentage_default;
     heater_percentage = heater_percentage_default;
-    if (humidity == ~0 or temperature == ~0 ) {
+    if (humidity == ~0 or temperature == ~0)
+    {
         return;
     }
-    if (humidity >= goal_humidity_value + goal_humidity_offset) {
+    if (humidity >= goal_humidity_value + goal_humidity_offset)
+    {
         ventilator_percentage += ventilator_percentage_offset;
-        if (temperature >= goal_temperature_value + goal_temperature_offset) {
+        if (temperature >= goal_temperature_value + goal_temperature_offset)
+        {
             cycle_time += cycle_time_offset;
         }
-        else if (temperature <= goal_temperature_value - goal_temperature_offset) {
+        else if (temperature <= goal_temperature_value - goal_temperature_offset)
+        {
             cycle_time -= cycle_time_offset;
             heater_percentage += heater_percentage_offset;
         }
     }
-    else if (humidity <= goal_humidity_value - goal_humidity_offset) {
+    else if (humidity <= goal_humidity_value - goal_humidity_offset)
+    {
         ventilator_percentage = ventilator_percentage - ventilator_percentage_offset;
-        if (temperature >= goal_temperature_value + goal_temperature_offset) {
+        if (temperature >= goal_temperature_value + goal_temperature_offset)
+        {
             cycle_time += cycle_time_offset;
         }
-        else if (temperature <= goal_temperature_value - goal_temperature_offset) {
+        else if (temperature <= goal_temperature_value - goal_temperature_offset)
+        {
             cycle_time -= cycle_time_offset;
             heater_percentage -= heater_percentage_offset;
         }
     }
-    else {
-        if (temperature >= goal_temperature_value + goal_temperature_offset) {
+    else
+    {
+        if (temperature >= goal_temperature_value + goal_temperature_offset)
+        {
             cycle_time += cycle_time_offset;
         }
-        else if (temperature <= goal_temperature_value - goal_temperature_offset) {
+        else if (temperature <= goal_temperature_value - goal_temperature_offset)
+        {
             cycle_time -= cycle_time_offset;
         }
     }
@@ -138,52 +148,45 @@ void control_lighting()
 String format_cycle_time()
 {
     unsigned long currentMillis = millis();
-    return F("seconds: ") + String(currentMillis / 1000) + F("s")
-        + F(" climate: ") + String((time_climate_cycle - currentMillis) / 1000) + F("/") + String(cycle_time / 1000) + F("s ") 
-        + F(" ventilator: ") + String((time_ventilator_control - currentMillis) / 1000) + F("/") + String((cycle_time / 100 * ventilator_percentage) / 1000) + F("s ") 
-        + F(" heating: ") + String((time_heater_control - currentMillis) / 1000) + F("/") + String((cycle_time / 100 * heater_percentage) / 1000) + F("s") ;
+    return F("seconds: ") + String(currentMillis / 1000) + F("s") + F(" climate: ") + String((time_climate_cycle - currentMillis) / 1000) + F("/") + String(cycle_time / 1000) + F("s ") + F(" ventilator: ") + String((time_ventilator_control - currentMillis) / 1000) + F("/") + String((cycle_time / 100 * ventilator_percentage) / 1000) + F("s ") + F(" heating: ") + String((time_heater_control - currentMillis) / 1000) + F("/") + String((cycle_time / 100 * heater_percentage) / 1000) + F("s");
 }
 
 String format_climate_cycle()
 {
-    return F("cycle: ") + String(cycle_time / 1000) + F("s")
-        + F(" ventilator: ") + String(ventilator_percentage) + F("%")
-        + F(" heater: ") + String(heater_percentage) + F("%");
+    return F("cycle: ") + String(cycle_time / 1000) + F("s") + F(" ventilator: ") + String(ventilator_percentage) + F("%") + F(" heater: ") + String(heater_percentage) + F("%");
 }
 
 String format_climate(int16_t temperature, int16_t humidity)
 {
     String climate_str = F("Temperature: ");
-    if (temperature == ~0) {
+    if (temperature == ~0)
+    {
         climate_str = climate_str + F("Error");
     }
-    else {
+    else
+    {
         climate_str = climate_str + String(temperature / 10) + F(".") + String(temperature % 10) + F(" *C");
     }
     climate_str = climate_str + F(" Humidity: ");
-    if (humidity == ~0) {
+    if (humidity == ~0)
+    {
         climate_str = climate_str + F("Error");
-    } else {
-        climate_str = climate_str
-            + String(humidity / 10) + F(".") + String(humidity % 10) + F(" %");
+    }
+    else
+    {
+        climate_str = climate_str + String(humidity / 10) + F(".") + String(humidity % 10) + F(" %");
     }
     return climate_str;
 }
 
-String format_controls() 
+String format_controls()
 {
-    return F("Heating: ") + String(power_heating)
-        + F(" Lighting: ") + String(power_lighting)
-        + F(" Dehumidifier: ") + power_dehumidifier
-        + F(" Ventilation: ") + power_ventilation;
+    return F("Heating: ") + String(power_heating) + F(" Lighting: ") + String(power_lighting) + F(" Dehumidifier: ") + power_dehumidifier + F(" Ventilation: ") + power_ventilation;
 }
 
 String format_status(int16_t temperature, int16_t humidity)
 {
-    return timeClient.getFormattedTime() 
-        + F(" ") + format_climate(temperature, humidity)
-        + F(" ") + format_controls()
-        + F(" ") + format_climate_cycle();
+    return timeClient.getFormattedTime() + F(" ") + format_climate(temperature, humidity) + F(" ") + format_controls() + F(" ") + format_climate_cycle();
 }
 
 String format_sensor_data_json(int16_t temperature, int16_t humidity)
@@ -201,7 +204,8 @@ String format_sensor_data_json(int16_t temperature, int16_t humidity)
 
 void send_data(String json_string)
 {
-    if (WiFi.status() == WL_CONNECTED) {
+    if (WiFi.status() == WL_CONNECTED)
+    {
         WiFiClient client;
         HTTPClient http;
 
@@ -213,14 +217,17 @@ void send_data(String json_string)
         Serial.println(httpCode);
 
         http.end();
-    } else {
+    }
+    else
+    {
         Serial.println(F("Error in WiFi connection"));
     }
 }
 
 void main_method(bool send_values)
 {
-    if (!dht22.available()) {
+    if (!dht22.available())
+    {
         Serial.println(F("DHT22 not available."));
     }
     int16_t temperature = dht22.readTemperature();
@@ -233,8 +240,9 @@ void main_method(bool send_values)
     control_lighting();
     Serial.println(format_status(temperature, humidity));
 
-    if (send_values and temperature != ~0 and humidity != ~0) {
-        String json_string  = format_sensor_data_json(temperature, humidity);
+    if (send_values and temperature != ~0 and humidity != ~0)
+    {
+        String json_string = format_sensor_data_json(temperature, humidity);
         send_data(json_string);
     }
 }
@@ -249,28 +257,34 @@ void setup()
     pinMode(RelayDehumidifier, OUTPUT);
     pinMode(RelayVentilation, OUTPUT);
 
-    ESPAsync_WiFiManager ESPAsync_wifiManager(&webServer, &dnsServer, "AutoConnectAP");
-    ESPAsync_wifiManager.autoConnect("AutoConnectAP");
-    if (WiFi.status() == WL_CONNECTED) {
+    if (!ESPAsync_wifiManager.startConfigPortal())
+    {
+        Serial.println(F("Not connected to WiFi but continuing anyway."));
+    }
+    else
+    {
+        Serial.println(F("WiFi connected...yeey :)"));
+    }
+
+    if (WiFi.status() == WL_CONNECTED)
+    {
         Serial.print(F("Connected. Local IP: "));
         Serial.println(WiFi.localIP());
     }
-    else {
+    else
+    {
         Serial.println(ESPAsync_wifiManager.getStatus(WiFi.status()));
     }
 
     timeClient.begin();
     timeClient.update();
 
-    webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-            request->send(200, F("text/plain"), format_status(TEMPERATURE, HUMIDITY));
-        });
-    webServer.on("/cycle", HTTP_GET, [](AsyncWebServerRequest *request) {
-            request->send(200, F("text/plain"), format_cycle_time());
-        });
-    webServer.on("/json", HTTP_GET, [](AsyncWebServerRequest *request) {
-            request->send(200, F("application/json"), format_sensor_data_json(TEMPERATURE, HUMIDITY));
-        });
+    webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+                 { request->send(200, F("text/plain"), format_status(TEMPERATURE, HUMIDITY)); });
+    webServer.on("/cycle", HTTP_GET, [](AsyncWebServerRequest *request)
+                 { request->send(200, F("text/plain"), format_cycle_time()); });
+    webServer.on("/json", HTTP_GET, [](AsyncWebServerRequest *request)
+                 { request->send(200, F("application/json"), format_sensor_data_json(TEMPERATURE, HUMIDITY)); });
 
     AsyncElegantOTA.begin(&webServer);
     webServer.begin();
@@ -281,20 +295,23 @@ void setup()
 void loop()
 {
     int current_second = timeClient.getSeconds();
-    if (!minute_loop_has_run and current_second == 0) {
+    if (!minute_loop_has_run and current_second == 0)
+    {
         minute_loop_has_run = true;
         main_method(true);
     }
-    else if (last_second != current_second and current_second != 0) {
+    else if (last_second != current_second and current_second != 0)
+    {
         Serial.print(current_second);
         Serial.print(F(" "));
         Serial.println(format_cycle_time());
-        last_second = current_second; 
+        last_second = current_second;
         minute_loop_has_run = false;
     }
 
     unsigned long currentMillis = millis();
-    if (currentMillis >= time_ventilator_control) {
+    if (currentMillis >= time_ventilator_control)
+    {
         time_ventilator_control = ULONG_MAX;
         Serial.println("stop ventilator, start heater");
 
@@ -303,21 +320,23 @@ void loop()
         digitalWrite(RelayVentilation, power_ventilation);
         digitalWrite(RelayHeating, power_heating);
     }
-    else if (currentMillis >= time_heater_control) {
+    else if (currentMillis >= time_heater_control)
+    {
         time_heater_control = ULONG_MAX;
 
         Serial.println("stop heater");
         power_heating = LOW;
         digitalWrite(RelayHeating, power_heating);
     }
-    else if (currentMillis >= time_climate_cycle) {
+    else if (currentMillis >= time_climate_cycle)
+    {
         Serial.println("start ventilation");
         int16_t temperature = dht22.readTemperature();
         int16_t humidity = dht22.readHumidity();
         set_climate_cycle(temperature, humidity);
 
         time_ventilator_control = currentMillis + (cycle_time / 100 * ventilator_percentage);
-        time_heater_control = time_ventilator_control + (cycle_time / 100  * heater_percentage);
+        time_heater_control = time_ventilator_control + (cycle_time / 100 * heater_percentage);
         time_climate_cycle = currentMillis + cycle_time;
 
         power_ventilation = HIGH;

@@ -22,14 +22,14 @@
  *  Licensed under MIT license
  */
 
-#include <Arduino.h>
-#include <ESPAsync_WiFiManager.h>
+////////////////////
+
+#include <wifi.h>
 #include <ESP8266HTTPClient.h>
 #include <AsyncElegantOTA.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 #include <ErriezDHT22.h>
-#include <ArduinoJson.h>
 
 // Configure ID of the space
 int space_id = 3;
@@ -62,9 +62,9 @@ int power_lighting = LOW;
 int power_dehumidifier = LOW;
 int power_ventilation = LOW;
 
-AsyncWebServer webServer(80);
-DNSServer dnsServer;
-ESPAsync_WiFiManager ESPAsync_wifiManager(&webServer, &dnsServer);
+// AsyncWebServer webServer(80);
+// DNSServer dnsServer;
+// ESPAsync_WiFiManager ESPAsync_wifiManager(&webServer, &dnsServer);
 
 // NTP time client
 WiFiUDP ntpUDP;
@@ -72,7 +72,7 @@ const long utcOffsetInSeconds = 7200;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
 // DHT22
-#define DHT22_PIN 4
+#define DHT22_PIN 4 // PIN_D2
 DHT22 dht22 = DHT22(DHT22_PIN);
 
 // Global values
@@ -247,34 +247,22 @@ void main_method(bool send_values)
     }
 }
 
+////////////////////
+
 void setup()
 {
-    Serial.begin(115200);
-    Serial.println(F("Starting application"));
-
+    pinMode(LED_BUILTIN, OUTPUT);
     pinMode(RelayHeating, OUTPUT);
     pinMode(RelayLighting, OUTPUT);
     pinMode(RelayDehumidifier, OUTPUT);
     pinMode(RelayVentilation, OUTPUT);
 
-    if (!ESPAsync_wifiManager.startConfigPortal())
-    {
-        Serial.println(F("Not connected to WiFi but continuing anyway."));
-    }
-    else
-    {
-        Serial.println(F("WiFi connected...yeey :)"));
-    }
+    Serial.begin(115200);
+    while (!Serial)
+        ;
+    delay(200);
 
-    if (WiFi.status() == WL_CONNECTED)
-    {
-        Serial.print(F("Connected. Local IP: "));
-        Serial.println(WiFi.localIP());
-    }
-    else
-    {
-        Serial.println(ESPAsync_wifiManager.getStatus(WiFi.status()));
-    }
+    setup_wifi();
 
     timeClient.begin();
     timeClient.update();
@@ -294,6 +282,8 @@ void setup()
 
 void loop()
 {
+    check_wifi_status();
+
     int current_second = timeClient.getSeconds();
     if (!minute_loop_has_run and current_second == 0)
     {

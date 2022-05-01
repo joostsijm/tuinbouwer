@@ -25,6 +25,7 @@
 ////////////////////
 
 #include <wifi.h>
+#include <format.h>
 #include <ESP8266HTTPClient.h>
 #include <AsyncElegantOTA.h>
 #include <NTPClient.h>
@@ -62,9 +63,6 @@ int power_lighting = LOW;
 int power_dehumidifier = LOW;
 int power_ventilation = LOW;
 
-// AsyncWebServer webServer(80);
-// DNSServer dnsServer;
-// ESPAsync_WiFiManager ESPAsync_wifiManager(&webServer, &dnsServer);
 
 // NTP time client
 WiFiUDP ntpUDP;
@@ -145,63 +143,6 @@ void control_lighting()
     digitalWrite(RelayLighting, power_lighting);
 }
 
-String format_cycle_time()
-{
-    unsigned long currentMillis = millis();
-    return F("seconds: ") + String(currentMillis / 1000) + F("s") + F(" climate: ") + String((time_climate_cycle - currentMillis) / 1000) + F("/") + String(cycle_time / 1000) + F("s ") + F(" ventilator: ") + String((time_ventilator_control - currentMillis) / 1000) + F("/") + String((cycle_time / 100 * ventilator_percentage) / 1000) + F("s ") + F(" heating: ") + String((time_heater_control - currentMillis) / 1000) + F("/") + String((cycle_time / 100 * heater_percentage) / 1000) + F("s");
-}
-
-String format_climate_cycle()
-{
-    return F("cycle: ") + String(cycle_time / 1000) + F("s") + F(" ventilator: ") + String(ventilator_percentage) + F("%") + F(" heater: ") + String(heater_percentage) + F("%");
-}
-
-String format_climate(int16_t temperature, int16_t humidity)
-{
-    String climate_str = F("Temperature: ");
-    if (temperature == ~0)
-    {
-        climate_str = climate_str + F("Error");
-    }
-    else
-    {
-        climate_str = climate_str + String(temperature / 10) + F(".") + String(temperature % 10) + F(" *C");
-    }
-    climate_str = climate_str + F(" Humidity: ");
-    if (humidity == ~0)
-    {
-        climate_str = climate_str + F("Error");
-    }
-    else
-    {
-        climate_str = climate_str + String(humidity / 10) + F(".") + String(humidity % 10) + F(" %");
-    }
-    return climate_str;
-}
-
-String format_controls()
-{
-    return F("Heating: ") + String(power_heating) + F(" Lighting: ") + String(power_lighting) + F(" Dehumidifier: ") + power_dehumidifier + F(" Ventilation: ") + power_ventilation;
-}
-
-String format_status(int16_t temperature, int16_t humidity)
-{
-    return timeClient.getFormattedTime() + F(" ") + format_climate(temperature, humidity) + F(" ") + format_controls() + F(" ") + format_climate_cycle();
-}
-
-String format_sensor_data_json(int16_t temperature, int16_t humidity)
-{
-    StaticJsonDocument<200> json_document;
-    json_document[F("space_id")] = space_id;
-    json_document[F("temperature")] = String(temperature / 10) + F(".") + String(temperature % 10);
-    json_document[F("humidity")] = String(humidity / 10) + F(".") + String(humidity % 10);
-    json_document[F("power")] = F("0");
-
-    String json_string;
-    serializeJson(json_document, json_string);
-    return json_string;
-}
-
 void send_data(String json_string)
 {
     if (WiFi.status() == WL_CONNECTED)
@@ -238,11 +179,12 @@ void main_method(bool send_values)
     // control_temperature(temperature);
     // control_humidity(humidity);
     control_lighting();
-    Serial.println(format_status(temperature, humidity));
+
+    Serial.println(format_status(timeClient.getFormattedTime(), temperature, humidity, power_heating, power_lighting, power_dehumidifier, power_ventilation, cycle_time, ventilator_percentage, heater_percentage));
 
     if (send_values and temperature != ~0 and humidity != ~0)
     {
-        String json_string = format_sensor_data_json(temperature, humidity);
+        String json_string = format_sensor_data_json(space_id, temperature, humidity);
         send_data(json_string);
     }
 }
@@ -268,11 +210,11 @@ void setup()
     timeClient.update();
 
     webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-                 { request->send(200, F("text/plain"), format_status(TEMPERATURE, HUMIDITY)); });
+                 { request->send(200, F("text/plain"), format_status(timeClient.getFormattedTime(), TEMPERATURE, HUMIDITY, power_heating, power_lighting, power_dehumidifier, power_ventilation, cycle_time, ventilator_percentage, heater_percentage)); });
     webServer.on("/cycle", HTTP_GET, [](AsyncWebServerRequest *request)
-                 { request->send(200, F("text/plain"), format_cycle_time()); });
+                 { request->send(200, F("text/plain"), format_cycle_time(time_climate_cycle, cycle_time, time_ventilator_control, ventilator_percentage, time_heater_control, heater_percentage)); });
     webServer.on("/json", HTTP_GET, [](AsyncWebServerRequest *request)
-                 { request->send(200, F("application/json"), format_sensor_data_json(TEMPERATURE, HUMIDITY)); });
+                 { request->send(200, F("application/json"), format_sensor_data_json(space_id, TEMPERATURE, HUMIDITY)); });
 
     AsyncElegantOTA.begin(&webServer);
     webServer.begin();
@@ -294,7 +236,7 @@ void loop()
     {
         Serial.print(current_second);
         Serial.print(F(" "));
-        Serial.println(format_cycle_time());
+        Serial.println(format_cycle_time(time_climate_cycle, cycle_time, time_ventilator_control, ventilator_percentage, time_heater_control, heater_percentage));
         last_second = current_second;
         minute_loop_has_run = false;
     }

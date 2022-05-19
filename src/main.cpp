@@ -63,7 +63,6 @@ int power_lighting = LOW;
 int power_dehumidifier = LOW;
 int power_ventilation = LOW;
 
-
 // NTP time client
 WiFiUDP ntpUDP;
 const long utcOffsetInSeconds = 7200;

@@ -48,14 +48,14 @@ const int goal_temperature_value = 22 * 10;
 const int goal_temperature_offset = 2 * 10;
 const int cycle_time_default = 20 * 60000;
 const int cycle_time_offset = 10 * 60000;
-const int ventilator_percentage_default = 20;
-const int ventilator_percentage_offset = 15;
-const int heater_percentage_default = 20;
-const int heater_percentage_offset = 10;
+const int ventilator_percentage_default = 30;
+const int ventilator_percentage_offset = 10;
+const int heater_percentage_default = 15;
+const int heater_percentage_offset = 5;
 
-int cycle_time = cycle_time_default;
-int ventilator_percentage = ventilator_percentage_default;
-int heater_percentage = heater_percentage_default;
+int cycle_time;
+int ventilator_percentage;
+int heater_percentage;
 
 // Control status boolean for power
 int power_heating = LOW;
@@ -90,46 +90,25 @@ void set_climate_cycle(int16_t temperature, int16_t humidity)
     cycle_time = cycle_time_default;
     ventilator_percentage = ventilator_percentage_default;
     heater_percentage = heater_percentage_default;
-    if (humidity == ~0 or temperature == ~0)
+    if (humidity == ~0 or temperature == ~0) return;
+    bool test_too_cold = temperature <= goal_temperature_value - goal_temperature_offset;
+    if (temperature >= goal_temperature_value + goal_temperature_offset)
     {
-        return;
+        cycle_time += cycle_time_offset;
+    }
+    else if (test_too_cold)
+    {
+        cycle_time -= cycle_time_offset;
     }
     if (humidity >= goal_humidity_value + goal_humidity_offset)
     {
         ventilator_percentage += ventilator_percentage_offset;
-        if (temperature >= goal_temperature_value + goal_temperature_offset)
-        {
-            cycle_time += cycle_time_offset;
-        }
-        else if (temperature <= goal_temperature_value - goal_temperature_offset)
-        {
-            cycle_time -= cycle_time_offset;
-            heater_percentage += heater_percentage_offset;
-        }
+        if (test_too_cold) heater_percentage += heater_percentage_offset;
     }
     else if (humidity <= goal_humidity_value - goal_humidity_offset)
     {
-        ventilator_percentage = ventilator_percentage - ventilator_percentage_offset;
-        if (temperature >= goal_temperature_value + goal_temperature_offset)
-        {
-            cycle_time += cycle_time_offset;
-        }
-        else if (temperature <= goal_temperature_value - goal_temperature_offset)
-        {
-            cycle_time -= cycle_time_offset;
-            heater_percentage -= heater_percentage_offset;
-        }
-    }
-    else
-    {
-        if (temperature >= goal_temperature_value + goal_temperature_offset)
-        {
-            cycle_time += cycle_time_offset;
-        }
-        else if (temperature <= goal_temperature_value - goal_temperature_offset)
-        {
-            cycle_time -= cycle_time_offset;
-        }
+        ventilator_percentage -= ventilator_percentage_offset;
+        if (test_too_cold) heater_percentage -= heater_percentage_offset;
     }
 }
 

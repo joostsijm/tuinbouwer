@@ -8,3 +8,4 @@ dist/
 instance/
 *.egg-info/
 *.pyc
+*.log

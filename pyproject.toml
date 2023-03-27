@@ -1,0 +1,37 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "tuinbouwer_server_api"
+version = "0.1.0"
+description = "Server solution for frontend and API of the Tuinbouwer project."
+authors = ["Joost Sijm <joost.sijm3@hva.nl>"]
+readme = "README.md"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Operating System :: OS Independent",
+  "Private :: Do Not Upload",
+]
+
+[tool.poetry.dependencies]
+flask = "*"
+flask-sqlalchemy = "*"
+flask-migrate = "*"
+flask-apscheduler = "*"
+flask-cors = "*"
+psycopg2-binary = "*"
+python = "^3.9"
+python-dotenv = "*"
+
+[tool.poetry.scripts]
+tuinbouwer_server_api = "tuinbouwer_server_api.__main__:main"
+
+[tool.poetry.group.dev.dependencies]
+autopep8 = "^2.0.1"
+pytest = "*"
+tox = "*"
+tox-venv = "*"

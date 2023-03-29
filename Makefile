@@ -7,6 +7,10 @@ main: build
 init:
 	cp example.env .env
 
+.PHONY: install-deps
+install-deps:
+	poetry install
+
 .PHONY: build
 build:
 	poetry build

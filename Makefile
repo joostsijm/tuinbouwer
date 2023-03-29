@@ -23,28 +23,33 @@ reinstall: build
 start: install
 	poetry run flask run
 
-.PHONY: docker-build
-docker-build:
+.PHONY: test
+test: install
+	poetry run pytest
+
+.PHONY: container-build
+container-build:
 	docker build \
 		-t $(DOCKER_ORGANIZATION)/$(DOCKER_APP_IMAGE) .
 
-.PHONY: docker-start
-docker-start:
+.PHONY: container-start
+container-start:
 	docker run \
+		-dp 8000:8000 \
 		--name $(DOCKER_ORGANIZATION)_$(DOCKER_APP_IMAGE) \
 		$(DOCKER_ORGANIZATION)/$(DOCKER_APP_IMAGE)
 
-.PHONY: docker-logs
-docker-logs:
+.PHONY: container-logs
+container-logs:
 	docker logs $(DOCKER_ORGANIZATION)_$(DOCKER_APP_IMAGE)
 
-.PHONY: docker-stop
-docker-stop:
+.PHONY: container-stop
+container-stop:
 	docker stop $(DOCKER_ORGANIZATION)_$(DOCKER_APP_IMAGE)
 
-.PHONY: docker-remove
-docker-remove: docker-stop
+.PHONY: container-remove
+container-remove: container-stop
 	docker rm $(DOCKER_ORGANIZATION)_$(DOCKER_APP_IMAGE)
 
-.PHONY: docker-restart
-docker-restart: docker-build docker-stop docker-remove docker-start
+.PHONY: container-restart
+container-restart: container-build container-stop container-remove container-start

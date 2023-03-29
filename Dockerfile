@@ -24,6 +24,6 @@ RUN poetry config virtualenvs.create false \
     && poetry build \
     && pip install dist/*.whl
 
-EXPOSE 5000
+EXPOSE 8000
 
-CMD [ "flask", "run", "--host=0.0.0.0" ]
+CMD [ "gunicorn", "-b", "0.0.0.0", "tuinbouwer_server_api:create_app()" ]

@@ -6,5 +6,6 @@ build/
 dist/
 .env
 instance/
+cdk.out
 *.egg-info/
 *.pyc

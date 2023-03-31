@@ -137,6 +137,25 @@ publication = ">=0.0.3"
 typeguard = ">=2.13.3,<2.14.0"
 
 [[package]]
+name = "aws-cdk-aws-apprunner-alpha"
+version = "2.72.0a0"
+description = "The CDK Construct Library for AWS::AppRunner"
+category = "dev"
+optional = false
+python-versions = "~=3.7"
+files = [
+    {file = "aws-cdk.aws-apprunner-alpha-2.72.0a0.tar.gz", hash = "sha256:e833827a53bd1ad9c589c0faaa1b04132f1c6c8f7e8208182bf5c1edd9f9d1ac"},
+    {file = "aws_cdk.aws_apprunner_alpha-2.72.0a0-py3-none-any.whl", hash = "sha256:6091dc16ff8b73544fffe5ff0c246900641b6b0cded7bbb8260aae137bfebb42"},
+]
+
+[package.dependencies]
+aws-cdk-lib = ">=2.72.0,<3.0.0"
+constructs = ">=10.0.0,<11.0.0"
+jsii = ">=1.78.1,<2.0.0"
+publication = ">=0.0.3"
+typeguard = ">=2.13.3,<2.14.0"
+
+[[package]]
 name = "aws-cdk-lib"
 version = "2.72.0"
 description = "Version 2 of the AWS Cloud Development Kit library"
@@ -1157,4 +1176,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "29d1781096b0446d26eeb1a3df4b2c67acc01bf5f75b7159380619771f356f04"
+content-hash = "35912c941f4401cfa69d3637243938a97fd3f390b8a71d0293319a8f70049e4d"

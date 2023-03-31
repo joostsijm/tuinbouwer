@@ -1,4 +1,4 @@
-FROM node:slim
+FROM node:slim as frontend
 ENV NODE_OPTIONS=--openssl-legacy-provider
 WORKDIR /frontend
 COPY frontend .
@@ -19,7 +19,7 @@ COPY poetry.lock pyproject.toml ./
 RUN poetry export -f requirements.txt | pip install -r /dev/stdin
 
 COPY src README.md .env gunicorn.conf.py .
-COPY --from=0 /frontend/dist/ ./src/tuinbouwer_server_api/frontend
+COPY --from=frontend /frontend/dist/ ./src/tuinbouwer_server_api/frontend
 
 RUN poetry config virtualenvs.create false \
     && poetry build \

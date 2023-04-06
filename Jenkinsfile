@@ -14,12 +14,12 @@ pipeline {
                 ] ) {
                    sh "cp \$ENVIRONMENT_VARIABLES .env"
                 }
-                sh "make container-build"
+                sh "docker build -t tuinbouwer ."
             }
         }
         stage( 'Docker save' ) {
             steps {
-                sh "make container-save"
+                sh "docker save tuinbouwer -o container.tar"
             }
         }
     }

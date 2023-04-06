@@ -36,6 +36,11 @@ container-build:
 	docker build \
 		-t $(DOCKER_ORGANIZATION)/$(DOCKER_APP_IMAGE) .
 
+.PHONY: container-save
+container-save:
+	docker save \
+		$(DOCKER_ORGANIZATION)/$(DOCKER_APP_IMAGE) -o container.tar
+
 .PHONY: container-start
 container-start:
 	docker run \

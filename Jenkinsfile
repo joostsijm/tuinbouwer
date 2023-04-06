@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'debian:latest'
+            image 'docker:latest'
             args '-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock '
             alwaysPull true
         }

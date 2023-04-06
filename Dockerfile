@@ -2,6 +2,7 @@ FROM node:slim as frontend
 ENV NODE_OPTIONS=--openssl-legacy-provider
 WORKDIR /frontend
 COPY frontend .
+RUN npm ci
 RUN npm run build
 
 FROM python:3.11-slim

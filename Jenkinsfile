@@ -8,7 +8,7 @@ pipeline {
                 ] ) {
                    sh "cp \$ENVIRONMENT_VARIABLES .env"
                 }
-                sh "make build"
+                sh "make container-build"
             }
         }
         stage( 'Docker save' ) {

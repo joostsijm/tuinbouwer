@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'jenkins/agent:latest'
+            args '-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock '
+            alwaysPull true
+        }
+    }
     stages {
         stage( 'Docker build' ) {
             steps {

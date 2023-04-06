@@ -4,7 +4,7 @@ pipeline {
         stage( 'Docker build' ) {
             steps {
                 withCredentials( [
-                    file( credentialsId: 'environment_variables', variable: 'ENVIRONMENT_VARIABLES' )
+                    file( credentialsId: 'tuinbouwer_env', variable: 'ENVIRONMENT_VARIABLES' )
                 ] ) {
                    sh "cp \$ENVIRONMENT_VARIABLES .env"
                 }

@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'docker:latest'
-            args '-v /var/run/docker.sock:/var/run/docker.sock '
+            args '-u 0:0 -v /var/run/docker.sock:/var/run/docker.sock '
             alwaysPull true
         }
     }
@@ -19,7 +19,7 @@ pipeline {
         }
         stage( 'Docker save' ) {
             steps {
-                sh "docker save tuinbouwer -o container.tar"
+                sh "docker save tuinbouwer -o container_2.tar"
             }
         }
     }

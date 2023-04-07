@@ -19,7 +19,7 @@ pipeline {
         }
         stage( 'Docker save' ) {
             steps {
-                sh "docker save tuinbouwer -o container_2.tar"
+                sh "docker save tuinbouwer -o container.tar"
             }
         }
     }

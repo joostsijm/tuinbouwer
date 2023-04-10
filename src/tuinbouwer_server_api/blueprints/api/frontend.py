@@ -158,7 +158,7 @@ def spaces_advice(space_id):
                        'last week temperature was maximum ' + str(log.max_temperature) + ', minimum ' + str(log.min_temperature) + ', and average ' + str(log.temperature) + ' degree Celsius.'
                        'last week humidity was maximum ' + str(log.max_humidity) + ', minimum ' + str(log.min_humidity) + ', and average ' + str(log.humidity) + ' percent relative humidity. '
                        'Only reply a list of advice for short-term environmental adjustments for the plant.'
-                       'Format your reply as a JSON array.'
+                       'Format your reply as a JSON array containing strings.'
         },
     ]
     completion = openai.ChatCompletion.create(model='gpt-3.5-turbo', messages=message_history)

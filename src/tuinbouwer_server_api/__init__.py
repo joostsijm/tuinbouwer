@@ -6,14 +6,17 @@ import decimal
 from flask import Flask, json
 from dotenv import load_dotenv
 from flask_cors import CORS
+import openai
 
 from tuinbouwer_server_api.blueprints import website, api
 
-
 load_dotenv()
+openai.api_key = os.environ.get('OPENAI_KEY')
+
 
 class JSONEncoder(json.JSONEncoder):
     """Custom JSON encoder"""
+
     def default(self, obj):
         if isinstance(obj, decimal.Decimal):
             # Convert decimal instances to strings.
@@ -26,7 +29,6 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY=os.environ.get('FLASK_SECRET_KEY', 'dev'),
-        # SQLALCHEMY_DATABASE_URI='sqlite:////' + os.path.join(app.instance_path, 'app.sqlite'),
         SQLALCHEMY_DATABASE_URI=os.environ.get('FLASK_SQLALCHEMY_DATABASE_URI'),
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
@@ -54,16 +56,15 @@ def create_app(test_config=None):
     scheduler.init_app(app)
     scheduler.start()
     start_jobs()
-    
+
     # CORS
     CORS(app, resources={r'/*': {'origins': '*'}})
 
     # Website
     app.register_blueprint(website.frontend.blueprint)
-    
+
     # API
     app.register_blueprint(api.sensor.blueprint)
     app.register_blueprint(api.frontend.blueprint)
-
 
     return app

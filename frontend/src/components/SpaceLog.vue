@@ -11,8 +11,12 @@
     </select>
     <div @click="temperature = !temperature" :class="{ 'active_button' : temperature }">Temperature</div>
     <div @click="humidity = !humidity" :class="{ 'active_button' : humidity }">Humidity</div>
-    <div @click="getLogs">Refesh</div>
+    <div @click="getLogs">Refresh</div>
+    <div @click="getAdvice">Advice</div>
   </div>
+  <ul v-if="advices.length != 0">
+    <li v-for="(advice, index) in advices" :key="index">{{ advice }}</li>
+  </ul>
   <Chart :chartType=logType :logs=logs :temperature=temperature :humidity=humidity />
   <table>
     <thead>
@@ -70,18 +74,24 @@ export default {
       time: 1000 * 60 * 60,
       minTemperature: 0,
       maxTemperature: 0,
-      selected: "hour"
+      selected: "hour",
+      advices: []
     }
   },
   methods: {
     getLogs: async function() {
       let startDate = new Date()
       startDate.setTime(startDate.getTime() - this.time * this.timePosition)
-      let url = 'http://api.tuinbouwer.ga/api/frontend/spaces/' + this.space_id + '/log/' + this.timeUnit
+      let url = 'http://localhost:5000/api/frontend/spaces/' + this.space_id + '/log/' + this.timeUnit
       url += '/' + Math.round(startDate.getTime() / 1000)
       let response = await fetch(url)
       const object = await response.json()
       this.logs = object.logs
+    },
+    getAdvice: async function() {
+      let url = 'http://localhost:5000/api/frontend/spaces/' + this.space_id + '/advice'
+      let response = await fetch(url)
+      this.advices = await response.json()
     },
     decrementTime() {
       this.timePosition -= 1

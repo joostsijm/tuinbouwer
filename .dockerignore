@@ -1,0 +1,4 @@
+frontend/node_modules/
+frontend/dist/
+src/tuinbouwer_server_api/frontend/
+src/instance/

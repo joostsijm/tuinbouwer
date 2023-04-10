@@ -26,6 +26,7 @@ flask-cors = "*"
 psycopg2-binary = "*"
 python = "^3.9"
 python-dotenv = "*"
+openai = "^0.27.4"
 
 [tool.poetry.scripts]
 tuinbouwer_server_api = "tuinbouwer_server_api.__main__:main"
@@ -33,8 +34,6 @@ tuinbouwer_server_api = "tuinbouwer_server_api.__main__:main"
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^2.0.1"
 pytest = "*"
-tox = "*"
-tox-venv = "*"
 aws-cdk-lib = "^2.72.0"
 aws-cdk-aws-apprunner-alpha = "^2.72.0a0"
 constructs = "^10.1.297"

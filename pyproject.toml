@@ -1,9 +1,21 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry]
 name = "tuinbouwer_server_api"
 version = "0.1.0"
-description = "Tuinbouw server API"
-authors = ["JoostSijm <joostsijm@gmail.com>"]
+description = "Web application solution for frontend and REST-API of the Tuinbouwer project."
+authors = ["Joost Sijm <joostsijm@gmail.com"]
 readme = "README.md"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Operating System :: OS Independent",
+  "Private :: Do Not Upload",
+]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -14,8 +26,14 @@ flask-sqlalchemy = "^3.1.1"
 flask-migrate = "^4.0.5"
 flask-apscheduler = "^1.13.1"
 flask-cors = "^4.0.0"
+openai = "^0.27.4"
 
+[tool.poetry.scripts]
+tuinbouwer_server_api = "tuinbouwer_server_api.__main__:main"
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.poetry.group.dev.dependencies]
+autopep8 = "^2.0.1"
+pytest = "*"
+aws-cdk-lib = "^2.72.0"
+aws-cdk-aws-apprunner-alpha = "^2.72.0a0"
+constructs = "^10.1.297"

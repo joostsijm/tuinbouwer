@@ -89,7 +89,7 @@ export default {
 @media (min-width: 800px) {
   .list .list_item
   {
-    width: calc(100% / 3);
+    width: calc(100% / 3 - 2 * 0.4em - 2 * 0.14em);
   }
 }
 

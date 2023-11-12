@@ -1,4 +1,4 @@
-"""Models"""
+"""Database models (SQLAlchemy)"""
 
 from datetime import datetime
 
@@ -6,6 +6,7 @@ from sqlalchemy import MetaData
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
+# Required to keep consistency for foreign keys and indices.
 meta = MetaData(naming_convention={
     'ix': 'ix_%(column_0_label)s',
     'uq': 'uq_%(table_name)s_%(column_0_name)s',
@@ -17,21 +18,22 @@ db = SQLAlchemy(metadata=meta)
 migrate = Migrate()
 
 plants = db.Table('plants',
-    db.Column('space_id', db.Integer, db.ForeignKey('space.id'), primary_key=True),
-    db.Column('plant_id', db.Integer, db.ForeignKey('plant.id'), primary_key=True),
-    db.Column('move_date', db.Date, nullable=False),
-)
+                  db.Column('space_id', db.Integer, db.ForeignKey('space.id'), primary_key=True),
+                  db.Column('plant_id', db.Integer, db.ForeignKey('plant.id'), primary_key=True),
+                  db.Column('move_date', db.Date, nullable=False),
+                  )
+
 
 class Space(db.Model):
     """Model for space"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     plants = db.relationship('Plant', secondary=plants, lazy='dynamic',
-        backref=db.backref('space', lazy=True))
+                             backref=db.backref('space', lazy=True))
     sensor_logs = db.relationship('SensorLog', lazy='dynamic',
-        backref=db.backref('space', lazy=True))
+                                  backref=db.backref('space', lazy=True))
     hour_logs = db.relationship('HourLog', lazy='dynamic',
-        backref=db.backref('space_hour_log', lazy=True))
+                                backref=db.backref('space_hour_log', lazy=True))
 
 
 class Plant(db.Model):
@@ -60,7 +62,7 @@ class SensorLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # Date time
     date_time = db.Column(db.DateTime, default=datetime.now)
-    # Temperature in celcius
+    # Temperature in Celsius
     temperature = db.Column(db.DECIMAL(3, 1), nullable=False)
     min_temperature = db.Column(db.DECIMAL(3, 1))
     max_temperature = db.Column(db.DECIMAL(3, 1))
@@ -81,13 +83,14 @@ class SensorLog(db.Model):
     }
 
     def to_dict(self):
-        """return serializale dict of object"""
+        """return serializable dict of object"""
         return {
             'temperature': str(self.temperature),
             'humidity': str(self.humidity),
             'power': str(self.power),
             'space_id': self.space_id,
         }
+
 
 class MinuteLog(SensorLog):
     """Model for minute log"""
@@ -96,6 +99,7 @@ class MinuteLog(SensorLog):
     __mapper_args__ = {
         'polymorphic_identity': 'minute_log',
     }
+
 
 class HourLog(SensorLog):
     """Model for hour log"""
@@ -114,6 +118,7 @@ class DayLog(SensorLog):
         'polymorphic_identity': 'day_log',
     }
 
+
 class WeekLog(SensorLog):
     """Model for week log"""
     id = db.Column(db.Integer, db.ForeignKey('sensor_log.id'), primary_key=True)
@@ -121,6 +126,7 @@ class WeekLog(SensorLog):
     __mapper_args__ = {
         'polymorphic_identity': 'week_log',
     }
+
 
 class MonthLog(SensorLog):
     """Model for month log"""

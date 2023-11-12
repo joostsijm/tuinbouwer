@@ -1,17 +1,17 @@
-"""Frontend blueprint"""
+"""""Frontend blueprint"""
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
-from sqlalchemy.exc import IntegrityError
-from flask import Blueprint, abort, request
+from flask import Blueprint, json
 
-from tuinbouwer_server_api import models, functions
+from tuinbouwer_server_api import models, functions, openai
 
 
 blueprint = Blueprint('api_frontend', __name__, url_prefix='/api/frontend')
 
+
 @blueprint.route('/spaces')
-def spaces():
+def spaces_index():
     """Get spaces"""
     spaces = models.Space.query.all()
     spaces_dict = {}
@@ -20,6 +20,7 @@ def spaces():
             'name': space.name,
         }
     return spaces_dict
+
 
 @blueprint.route('/spaces/overview')
 def spaces_overview():
@@ -41,6 +42,7 @@ def spaces_overview():
             spaces_dict[space.id]['avg_humidity'] = hour_log.humidity
             spaces_dict[space.id]['date_time'] = hour_log.date_time
     return spaces_dict
+
 
 @blueprint.route('/spaces/<int:space_id>/log/day')
 @blueprint.route('/spaces/<int:space_id>/log/day/<int:timestamp>')
@@ -72,6 +74,7 @@ def spaces_log_day(space_id, timestamp=None):
         'logs': logs,
     }
 
+
 @blueprint.route('/spaces/<int:space_id>/log/hour')
 @blueprint.route('/spaces/<int:space_id>/log/hour/<int:timestamp>')
 def spaces_log_hour(space_id, timestamp=None):
@@ -101,6 +104,7 @@ def spaces_log_hour(space_id, timestamp=None):
         'id': space.id,
         'logs': logs,
     }
+
 
 @blueprint.route('/spaces/<int:space_id>/log/minute')
 @blueprint.route('/spaces/<int:space_id>/log/minute/<int:start_timestamp>')
@@ -133,3 +137,29 @@ def spaces_log_minute(space_id, start_timestamp=None, end_timestamp=None):
         'id': space.id,
         'logs': logs,
     }
+
+
+@blueprint.route('/spaces/<int:space_id>/advice')
+def spaces_advice(space_id):
+    """Get log of last hour from space"""
+    space = models.Space.query.get(space_id)
+    plant = space.plants.first()
+    log = models.SensorLog()
+    log.space_id = space_id
+    functions.summarize_log(log, functions.round_time(datetime.today(), 60), timedelta(weeks=1))
+
+    message_history = [
+        {
+            'role': 'user',
+            'content': 'You play the role of the grow tool of a horticulturalist. '
+                       'You advice me on a plant based on the following information: '
+                       'The specie is ' + plant.specie + ', '
+                       'it is ' + str((date.today() - plant.germination_date).days) + ' days since germination, '
+                       'last week temperature was maximum ' + str(log.max_temperature) + ', minimum ' + str(log.min_temperature) + ', and average ' + str(log.temperature) + ' degree Celsius.'
+                       'last week humidity was maximum ' + str(log.max_humidity) + ', minimum ' + str(log.min_humidity) + ', and average ' + str(log.humidity) + ' percent relative humidity. '
+                       'Only reply a list of advice for short-term environmental adjustments for the plant.'
+                       'Format your reply as a JSON array containing strings.'
+        },
+    ]
+    completion = openai.ChatCompletion.create(model='gpt-3.5-turbo', messages=message_history)
+    return json.loads(completion.choices[0].message.content)

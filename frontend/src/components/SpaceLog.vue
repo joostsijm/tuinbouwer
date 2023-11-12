@@ -77,7 +77,7 @@ export default {
     getLogs: async function() {
       let startDate = new Date()
       startDate.setTime(startDate.getTime() - this.time * this.timePosition)
-      let url = 'http://api.tuinbouwer.ga/api/frontend/spaces/' + this.space_id + '/log/' + this.timeUnit
+      let url = 'http://api.tuinbouwer.joostsijm.nl/api/frontend/spaces/' + this.space_id + '/log/' + this.timeUnit
       url += '/' + Math.round(startDate.getTime() / 1000)
       let response = await fetch(url)
       const object = await response.json()

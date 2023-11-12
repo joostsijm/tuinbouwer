@@ -1,3 +1,5 @@
-# Tuinbouw web solution
+# Tuinbouwer
 > tuin·bouw (de; m)
-> 1 het kweken van groenten en fruit
+> - het kweken van groenten en fruit
+
+See server and sensor directory for instructions.

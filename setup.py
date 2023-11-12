@@ -19,9 +19,13 @@ setuptools.setup(
     include_package_data=True,
     install_requires=[
         "flask",
+        "psycopg2-binary",
         "python-dotenv",
         "flask-sqlalchemy",
+        "flask-migrate",
+        "APScheduler",
         "flask-apscheduler",
+        "flask-cors",
     ],
     entry_points = {
         'console_scripts': ['tuinbouwer_server_api=tuinbouwer_server_api.__main__:main'],

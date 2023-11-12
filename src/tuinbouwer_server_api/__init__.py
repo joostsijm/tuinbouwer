@@ -2,8 +2,9 @@
 
 import os
 import decimal
+import json
 
-from flask import Flask, json
+from flask import Flask
 from dotenv import load_dotenv
 from flask_cors import CORS
 
